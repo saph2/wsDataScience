@@ -1,16 +1,16 @@
 
 # coding: utf-8
 
-# In[17]:
+# In[12]:
 
 import numpy as np
 import csv
 
 
-# In[18]:
+# In[13]:
 
 #read dictionary File into dictionary DataStruct
-with open("HostURLDurDict.csv") as f:
+with open("hostURLDurBar.csv") as f:
     dictdata = list(csv.reader(f))
     f.close
 
@@ -39,7 +39,7 @@ for line in dictdata:
             dict[hostname].update(urldict)
 
 
-# In[19]:
+# In[14]:
 
 #read the file intended to be labeled into DataStructure
 def readFileToList(filepath,newpath):
@@ -56,9 +56,9 @@ def readFileToList(filepath,newpath):
     return data
 
 
-# In[20]:
+# In[15]:
 
-#function for deciding busy line or not
+#function for deciding busy row or not
 def isBusy(lineDur,minDur):
     if lineDur>=(2*minDur): #twice as minimum duration
         return True
@@ -66,7 +66,7 @@ def isBusy(lineDur,minDur):
         return False
 
 
-# In[21]:
+# In[16]:
 
 #save labeled data to file
 def labeledDataToFile(filepath,data):
@@ -78,7 +78,7 @@ def labeledDataToFile(filepath,data):
         f2.close()
 
 
-# In[22]:
+# In[17]:
 
 def labelTheData (dict,data):
     data.reverse
@@ -95,26 +95,26 @@ def labelTheData (dict,data):
         if title=='Label':
             labelplace=i
         i+=1
-    #label the lines
+    #label the rows
     for line in data:
         lineHost=line[hostplace]
         lineUrl=line[urlplace]
         lineDur=float(line[durplace])
         minDur=(dict[lineHost])[lineUrl]
-        if isBusy(lineDur,minDur): #twice as minimum duration
+        if isBusy(lineDur,minDur): #check if busy row
             line[labelplace]=1
         else:
             line[labelplace]=0
     data.insert(0,headline)
 
 
-# In[23]:
+# In[18]:
 
 #label all the files in the list
 def labelAllFiles (dict,allfiles):
     for filepath in allfiles:
         newpath=filepath
-        newpath=newpath.split(".csv", 1)[0]+"labled.csv"
+        newpath=newpath.split(".csv", 1)[0]+"_labled.csv"
         data=readFileToList(filepath,newpath)
         #label the data of the file
         labelTheData (dict,data)
@@ -122,21 +122,11 @@ def labelAllFiles (dict,allfiles):
         labeledDataToFile(newpath,data)
 
 
-# In[24]:
+# In[19]:
 
 #label all files in the list 
-filepath="requests.csv"
 allfiles=list()
+filepath="DataToLabel/requests1.csv"
 allfiles.append(filepath)
 labelAllFiles (dict,allfiles)
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
 
