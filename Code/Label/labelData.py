@@ -1,13 +1,13 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[17]:
 
 import numpy as np
 import csv
 
 
-# In[2]:
+# In[18]:
 
 #read dictionary File into dictionary DataStruct
 with open("Data/DataForBar/barFile.csv") as f:
@@ -39,7 +39,7 @@ for line in dictdata:
             dict[hostname].update(urldict)
 
 
-# In[3]:
+# In[19]:
 
 #read the file intended to be labeled into DataStructure
 def readFileToList(filepath,newpath):
@@ -56,7 +56,7 @@ def readFileToList(filepath,newpath):
     return data
 
 
-# In[4]:
+# In[20]:
 
 #function for deciding busy row or not
 def isBusy(lineDur,minDur):
@@ -66,7 +66,7 @@ def isBusy(lineDur,minDur):
         return False
 
 
-# In[5]:
+# In[21]:
 
 #save labeled data to file
 def labeledDataToFile(filepath,data):
@@ -78,7 +78,7 @@ def labeledDataToFile(filepath,data):
         f2.close()
 
 
-# In[6]:
+# In[22]:
 
 def labelTheData (dict,data):
     data.reverse
@@ -108,14 +108,14 @@ def labelTheData (dict,data):
     data.insert(0,headline)
 
 
-# In[7]:
+# In[23]:
 
 #label all the files in the list
 def labelAllFiles (dict,allfiles):
     for filepath in allfiles:
         newpath=filepath
         newpath="Data/labeledData/"+newpath.split("Data/DataToLabel/", 1)[1]
-        newpath=newpath.split(".csv", 1)[0]+"_labled.csv"
+        newpath=newpath.split(".csv", 1)[0]+"_labeled.csv"
         data=readFileToList(filepath,newpath)
         #label the data of the file
         labelTheData (dict,data)
@@ -123,11 +123,19 @@ def labelAllFiles (dict,allfiles):
         labeledDataToFile(newpath,data)
 
 
-# In[8]:
+# In[24]:
 
-#label all files in the list 
+#label all files in the list
+import os
 allfiles=list()
-filepath="Data/DataToLabel/day_2015-10-01 - 2015-10-02.csv"
-allfiles.append(filepath)
+dirpath="Data/DataToLabel"
+for filename in os.listdir(dirpath): #add all requests files in the diractory
+    if "day" in filename:
+        allfiles.append("Data/DataToLabel/"+filename)
 labelAllFiles (dict,allfiles)
+
+
+# In[ ]:
+
+
 
