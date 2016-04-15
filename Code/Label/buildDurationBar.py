@@ -1,13 +1,13 @@
 
 # coding: utf-8
 
-# In[12]:
+# In[2]:
 
 import numpy as np
 import csv
 
 
-# In[13]:
+# In[3]:
 
 def readFileToList(filepath):
     with open(filepath) as f:
@@ -16,7 +16,7 @@ def readFileToList(filepath):
     return data
 
 
-# In[14]:
+# In[4]:
 
 #add/update to dictionary from a single request file: (Host->URL->MinDuration) 
 def insertToDict (dict,data,hostplace,urlplace,durplace):
@@ -36,7 +36,7 @@ def insertToDict (dict,data,hostplace,urlplace,durplace):
                 (dict[hostname])[urlname]=mindur  #update min duration time 
 
 
-# In[15]:
+# In[5]:
 
 #fill the dictionary from all the reqests files
 def createDictFromAllFiles (dict,allfiles):
@@ -58,7 +58,7 @@ def createDictFromAllFiles (dict,allfiles):
         insertToDict(dict,data,hostplace,urlplace,durplace)        
 
 
-# In[16]:
+# In[6]:
 
 #create a dictionary from files in the form of: (Host->URL->MinDuration) 
 import os
@@ -66,12 +66,12 @@ dict = {}
 allfiles=list()
 dirpath="Data/DataForBar"
 for filename in os.listdir(dirpath): #add all requests files in the diractory
-    if "day" in filename:
+    if ("day" in filename) or ("requests" in filename):
         allfiles.append("Data/DataForBar/"+filename)
 createDictFromAllFiles (dict,allfiles)
 
 
-# In[17]:
+# In[7]:
 
 #save dictionary to File
 with open("Data/DataForBar/barFile.csv",'w') as f2:
