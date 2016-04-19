@@ -1,13 +1,22 @@
 
 # coding: utf-8
 
-# In[2]:
+# In[ ]:
+
+# this program builds the bar we will use for labeling our data
+# the input are requests files found in the Dir: "Data/DataForBar"
+# the program finds the minimum request's duration per Host and Url and saves it in a dictionary
+# for exmp: host_name:url_base:minimum_duration
+# output: the dictionary is saved to a file called "barFile" in the same Dir
+
+
+# In[4]:
 
 import numpy as np
 import csv
 
 
-# In[3]:
+# In[5]:
 
 def readFileToList(filepath):
     with open(filepath) as f:
@@ -16,7 +25,7 @@ def readFileToList(filepath):
     return data
 
 
-# In[4]:
+# In[6]:
 
 #add/update to dictionary from a single request file: (Host->URL->MinDuration) 
 def insertToDict (dict,data,hostplace,urlplace,durplace):
@@ -36,9 +45,9 @@ def insertToDict (dict,data,hostplace,urlplace,durplace):
                 (dict[hostname])[urlname]=mindur  #update min duration time 
 
 
-# In[5]:
+# In[7]:
 
-#fill the dictionary from all the reqests files
+#fill the dictionary from all the requests files
 def createDictFromAllFiles (dict,allfiles):
     for filepath in allfiles:
         data=readFileToList(filepath)
@@ -58,7 +67,7 @@ def createDictFromAllFiles (dict,allfiles):
         insertToDict(dict,data,hostplace,urlplace,durplace)        
 
 
-# In[6]:
+# In[8]:
 
 #create a dictionary from files in the form of: (Host->URL->MinDuration) 
 import os
@@ -71,7 +80,7 @@ for filename in os.listdir(dirpath): #add all requests files in the diractory
 createDictFromAllFiles (dict,allfiles)
 
 
-# In[7]:
+# In[9]:
 
 #save dictionary to File
 with open("Data/DataForBar/barFile.csv",'w') as f2:
@@ -82,9 +91,4 @@ with open("Data/DataForBar/barFile.csv",'w') as f2:
             dur=hostdict[url]
             f2.write("%s,%s,%f\n" % (host, url, dur))
     f2.close()
-
-
-# In[ ]:
-
-
 
