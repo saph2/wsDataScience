@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[136]:
+# In[28]:
 
 # this program reads all labeled files from "LabeledData" Dir
 # the program orders fields in selected features by the prob of having a "busy" label (out of the total count for the field)
@@ -12,7 +12,7 @@
 # the files are saved in Dir: "Data/Features"
 
 
-# In[128]:
+# In[29]:
 
 import os
 import csv
@@ -26,7 +26,7 @@ brwVerDict=OrderedDict()
 tempDict=OrderedDict()
 
 
-# In[129]:
+# In[30]:
 
 #for the given feature - update its dictionary
 #dictionary build for exmp: country_name: [count #label '0', count #label '1']
@@ -39,7 +39,7 @@ def updateFeature(row, featurePlace, featureDict, labelPlace):
     featureDict[featureName][label]+=1
 
 
-# In[130]:
+# In[31]:
 
 #update all the dictionaries with the info from the current file
 def updateAllDict(data):
@@ -68,7 +68,7 @@ def updateAllDict(data):
         updateFeature(row,brwVerPlace,brwVerDict,labelPlace)      
 
 
-# In[131]:
+# In[32]:
 
 #return the dictionary build for exmp: country_name: #busy/#total
 def getBusyPerDict(dictName):
@@ -79,7 +79,7 @@ def getBusyPerDict(dictName):
     return tempDict
 
 
-# In[132]:
+# In[33]:
 
 #save dictionary to file
 def dictToFile(dictName, fileName):
@@ -92,15 +92,18 @@ def dictToFile(dictName, fileName):
     
     filepath="Data/Features/"+fileName+"_Features.csv"
     with open(filepath,'w') as f2:
-        f2.write('%s,busyFromTotal\n' % fileName)
+        fieldID=1 #number each field
+        f2.write('%s,busyFromTotal,fieldID\n' % fileName)
         for key in dictName:
             f2.write('%s,' % key)
             f2.write('%f,' % dictName[key])
+            f2.write('%d,' % fieldID)
             f2.write('\n')
+            fieldID+=1
         f2.close()
 
 
-# In[133]:
+# In[34]:
 
 #read all the files from Dir to list
 allfiles=list()
@@ -110,7 +113,7 @@ for filename in os.listdir(dirpath): #add all requests files in the diractory
         allfiles.append("Data/LabeledData/"+filename)
 
 
-# In[134]:
+# In[35]:
 
 #go over each file and update all the dictionaries 
 for filename in allfiles:
@@ -120,7 +123,7 @@ for filename in allfiles:
     updateAllDict(data)
 
 
-# In[135]:
+# In[36]:
 
 #send all the updated dictionaries to files
 dictToFile(continentDict,"continent")
