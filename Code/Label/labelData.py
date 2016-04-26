@@ -15,38 +15,41 @@
 
 import numpy as np
 import csv
+import os
+allfiles=list()
+dict = {}
 
 
 # In[17]:
 
 #read dictionary File into dictionary DataStruct
-with open("Data/DataForBar/barFile.csv") as f:
-    dictdata = list(csv.reader(f))
-    f.close
-
+def readBarFile(barDirPath):
+    barPath=barDirPath+"/barFile.csv"
+    with open(barPath) as f:
+        dictdata = list(csv.reader(f))
+        f.close
     dictdata.reverse
-headline=dictdata.pop(0)
-i=0
-for title in headline:
-    if title=='Host':
-        hostplace=i
-    if title =='URL':
-        urlplace=i
-    if title=='MinDuration':
-        durplace=i
-    i+=1
-dict = {}
-for line in dictdata:
-    hostname=line[hostplace]
-    urlname=line[urlplace]
-    dur=float(line[durplace])
-    urldict={urlname:dur}
-    if hostname not in dict: #update new host
-        dict.update({hostname:urldict})
-    else:
-        allurls=dict[hostname] #the current host url's list
-        if urlname not in allurls: #update new url
-            dict[hostname].update(urldict)
+    headline=dictdata.pop(0)
+    i=0
+    for title in headline:
+        if title=='Host':
+            hostplace=i
+        if title =='URL':
+            urlplace=i
+        if title=='MinDuration':
+            durplace=i
+        i+=1
+    for line in dictdata:
+        hostname=line[hostplace]
+        urlname=line[urlplace]
+        dur=float(line[durplace])
+        urldict={urlname:dur}
+        if hostname not in dict: #update new host
+            dict.update({hostname:urldict})
+        else:
+            allurls=dict[hostname] #the current host url's list
+            if urlname not in allurls: #update new url
+                dict[hostname].update(urldict)
 
 
 # In[18]:
@@ -116,34 +119,31 @@ def labelTheData (dict,data):
     data.insert(0,headline)
 
 
-# In[22]:
-
-#label all the files in the list
-def labelAllFiles (dict,allfiles):
-    for filepath in allfiles:
-        newpath=filepath
-        newpath="Data/labeledData/"+newpath.split("Data/DataToLabel/", 1)[1]
-        newpath=newpath.split(".csv", 1)[0]+"_labeled.csv"
-        data=readFileToList(filepath,newpath)
-        #label the data of the file
-        labelTheData (dict,data)
-        #save data to file
-        labeledDataToFile(newpath,data)
-
-
-# In[23]:
-
-#label all files in the list
-import os
-allfiles=list()
-dirpath="Data/DataToLabel"
-for filename in os.listdir(dirpath): #add all requests files in the diractory
-    if ("day" in filename) or ("requests" in filename):
-        allfiles.append("Data/DataToLabel/"+filename)
-labelAllFiles (dict,allfiles)
-
-
 # In[ ]:
 
+#label all files in the dir
 
+#dataDir="Data/DataToLabel"
+#labelDir="Data/LabeledData"
+#barDir="Data/DataForBar"
+
+def labelAllfiles(dataDir,labelDir,barDir):
+    
+    readBarFile(barDir)#update bar dictionary
+    
+    for filename in os.listdir(dataDir): #add all requests files in the diractory
+            
+        filepath=dataDir+"/"+filename #oldpath
+            
+        newpath=labelDir+"/"+filename #newpath
+        newpath=newpath.split(".csv", 1)[0]+"_labeled.csv"
+              
+        #copy the file to the labelDir and add "Label" column then save to Data
+        data=readFileToList(filepath,newpath) 
+        
+        #label the data of the file
+        labelTheData (dict,data)
+        
+        #save data to file
+        labeledDataToFile(newpath,data)
 

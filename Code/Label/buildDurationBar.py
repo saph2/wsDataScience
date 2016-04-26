@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[ ]:
+# In[9]:
 
 # this program builds the bar we will use for labeling our data
 # the input are requests files found in the Dir: "Data/DataForBar"
@@ -10,13 +10,16 @@
 # output: the dictionary is saved to a file called "barFile" in the same Dir
 
 
-# In[4]:
+# In[10]:
 
 import numpy as np
 import csv
+import os
+dict = {}
+allfiles=list()
 
 
-# In[5]:
+# In[11]:
 
 def readFileToList(filepath):
     with open(filepath) as f:
@@ -25,7 +28,7 @@ def readFileToList(filepath):
     return data
 
 
-# In[6]:
+# In[12]:
 
 #add/update to dictionary from a single request file: (Host->URL->MinDuration) 
 def insertToDict (dict,data,hostplace,urlplace,durplace):
@@ -45,7 +48,7 @@ def insertToDict (dict,data,hostplace,urlplace,durplace):
                 (dict[hostname])[urlname]=mindur  #update min duration time 
 
 
-# In[7]:
+# In[13]:
 
 #fill the dictionary from all the requests files
 def createDictFromAllFiles (dict,allfiles):
@@ -67,28 +70,34 @@ def createDictFromAllFiles (dict,allfiles):
         insertToDict(dict,data,hostplace,urlplace,durplace)        
 
 
-# In[8]:
-
-#create a dictionary from files in the form of: (Host->URL->MinDuration) 
-import os
-dict = {}
-allfiles=list()
-dirpath="Data/DataForBar"
-for filename in os.listdir(dirpath): #add all requests files in the diractory
-    if ("day" in filename) or ("requests" in filename):
-        allfiles.append("Data/DataForBar/"+filename)
-createDictFromAllFiles (dict,allfiles)
-
-
-# In[9]:
+# In[14]:
 
 #save dictionary to File
-with open("Data/DataForBar/barFile.csv",'w') as f2:
-    f2.write("Host,URL,MinDuration\n")
-    for host in dict:
-        hostdict=dict[host]
-        for url in hostdict:
-            dur=hostdict[url]
-            f2.write("%s,%s,%f\n" % (host, url, dur))
-    f2.close()
+def saveDictToFile(dirpath):
+    barPath=dirpath+"/barFile.csv"
+    with open(barPath,'w') as f2:
+        f2.write("Host,URL,MinDuration\n")
+        for host in dict:
+            hostdict=dict[host]
+            for url in hostdict:
+                dur=hostdict[url]
+                f2.write("%s,%s,%f\n" % (host, url, dur))
+        f2.close()
+
+
+# In[15]:
+
+#create a dictionary from files in the form of: (Host->URL->MinDuration) 
+#dirpath="Data/DataForBar"
+def buildBar(dirpath):
+    for filename in os.listdir(dirpath): #add all requests files in the diractory
+        if "bar" not in filename:
+            allfiles.append(dirpath+"/"+filename)
+    createDictFromAllFiles (dict,allfiles)
+    saveDictToFile(dirpath)
+
+
+# In[ ]:
+
+
 

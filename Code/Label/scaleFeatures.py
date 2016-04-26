@@ -82,7 +82,10 @@ def getBusyPerDict(dictName):
 # In[33]:
 
 #save dictionary to file
-def dictToFile(dictName, fileName):
+
+#featuresDirPath="Data/Features"
+
+def dictToFile(dictName, fileName,featuresDirPath):
     
     #call for probability analysis function
     dictName=getBusyPerDict(dictName)
@@ -90,10 +93,10 @@ def dictToFile(dictName, fileName):
     #order keys by busy values
     dictName=OrderedDict(sorted(dictName.items(), key=lambda t: t[1]))
     
-    filepath="Data/Features/"+fileName+"_Features.csv"
+    filepath=featuresDirPath+"/"+fileName+"_features.csv"
     with open(filepath,'w') as f2:
         fieldID=1 #number each field
-        f2.write('%s,busyFromTotal,fieldID\n' % fileName)
+        f2.write('fieldName,busyFromTotal,fieldID\n')
         for key in dictName:
             f2.write('%s,' % key)
             f2.write('%f,' % dictName[key])
@@ -105,32 +108,27 @@ def dictToFile(dictName, fileName):
 
 # In[34]:
 
-#read all the files from Dir to list
-allfiles=list()
-dirpath="Data/LabeledData"
-for filename in os.listdir(dirpath): #add all requests files in the diractory
-    if "labeled" in filename:
-        allfiles.append("Data/LabeledData/"+filename)
+#create features files from the labeled data
 
+#dataDirPath="Data/LabeledData"
 
-# In[35]:
+def buildFeaturesFiles(dataDirPath,featuresDirPath):
 
 #go over each file and update all the dictionaries 
-for filename in allfiles:
-    with open(filename) as f:
-        data = list(csv.reader(f))
-        f.close
-    updateAllDict(data)
-
-
-# In[36]:
-
-#send all the updated dictionaries to files
-dictToFile(continentDict,"continent")
-dictToFile(countryDict,"country")
-dictToFile(opNameDict,"opName")
-dictToFile(osVerDict,"osVer")
-dictToFile (brwVerDict,"brwVer")
+    for filename in os.listdir(dataDirPath):
+        if "labeled" in filename:
+            filepath=dataDirPath+"/"+filename
+            with open(filepath) as f:
+                data = list(csv.reader(f))
+                f.close
+            updateAllDict(data)
+    
+    #send all the updated dictionaries to files
+    dictToFile(continentDict,"continent",featuresDirPath)
+    dictToFile(countryDict,"country",featuresDirPath)
+    dictToFile(opNameDict,"opName",featuresDirPath)
+    dictToFile(osVerDict,"osVer",featuresDirPath)
+    dictToFile (brwVerDict,"brwVer",featuresDirPath)
 
 
 # In[ ]:
