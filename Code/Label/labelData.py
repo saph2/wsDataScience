@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[ ]:
+# In[40]:
 
 # this program labels our data
 # the input are requests files found in the Dir: "Data/DataToLabel"
@@ -11,7 +11,7 @@
 # output: each file is saved as it was, with the exception of an additional label column, to the Dir: "Data/labeledData"
 
 
-# In[16]:
+# In[49]:
 
 import numpy as np
 import csv
@@ -20,7 +20,7 @@ allfiles=list()
 dict = {}
 
 
-# In[17]:
+# In[50]:
 
 #read dictionary File into dictionary DataStruct
 def readBarFile(barDirPath):
@@ -52,7 +52,7 @@ def readBarFile(barDirPath):
                 dict[hostname].update(urldict)
 
 
-# In[18]:
+# In[51]:
 
 #read the file intended to be labeled into DataStructure
 def readFileToList(filepath,newpath):
@@ -69,7 +69,7 @@ def readFileToList(filepath,newpath):
     return data
 
 
-# In[19]:
+# In[52]:
 
 #function for deciding busy row or not
 def isBusy(lineDur,minDur):
@@ -79,7 +79,7 @@ def isBusy(lineDur,minDur):
         return 0
 
 
-# In[20]:
+# In[53]:
 
 #save labeled data to file
 def labeledDataToFile(filepath,data):
@@ -91,7 +91,9 @@ def labeledDataToFile(filepath,data):
         f2.close()
 
 
-# In[21]:
+# In[54]:
+
+# label the data from a single file
 
 def labelTheData (dict,data):
     data.reverse
@@ -119,7 +121,7 @@ def labelTheData (dict,data):
     data.insert(0,headline)
 
 
-# In[ ]:
+# In[55]:
 
 #label all files in the dir
 
@@ -146,4 +148,9 @@ def labelAllfiles(dataDir,labelDir,barDir):
         
         #save data to file
         labeledDataToFile(newpath,data)
+
+
+# In[ ]:
+
+
 

@@ -101,8 +101,11 @@ def writeVectorsFile (filepath,newdata,isLabeled):
     with open(filepath,'w') as f2:
         f2.write('%s' % headline)
         for row in newdata:
-            for item in row:
-                f2.write('%s,' % item)
+            for i in range (0,len(row)):
+                if (i<len(row)-1):
+                    f2.write('%s,' % row[i])
+                else:
+                    f2.write('%s' % row[i])    
             f2.write('\n')
         f2.close() 
 
