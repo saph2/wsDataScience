@@ -138,7 +138,7 @@ def labelAllfiles(dataDir,labelDir,barDir):
         filepath=dataDir+"/"+filename #oldpath
             
         newpath=labelDir+"/"+filename #newpath
-        newpath=newpath.split(".csv", 1)[0]+"_labeled.csv"
+        newpath=newpath.split(".csv")[0]+"_labeled.csv"
               
         #copy the file to the labelDir and add "Label" column then save to Data
         data=readFileToList(filepath,newpath) 

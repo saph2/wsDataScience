@@ -13,8 +13,7 @@ import os
 def cleanData(data):
     for row in data:
         for i in range (0,len(row)): #clean the data
-            if ',' in row[i]:
-                row[i]=row[i].split(',',1)[0]+"-"+row[i].split(',',1)[1]
+            row[i]=row[i].replace(',', '-')
     return data
 
 

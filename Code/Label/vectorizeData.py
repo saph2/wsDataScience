@@ -118,7 +118,7 @@ def vectorizeFilesInDir (dataDirPath,vectorsDirPath,isLabeled):
         
         filepath=dataDirPath+"/"+filename #oldpath
         
-        filename=filename.split(".csv",1)[0]+"_vectors.csv" #newpath
+        filename=filename.split(".csv")[0]+"_vectors.csv" #newpath
         newpath=vectorsDirPath+"/"+filename
         
         with open(filepath) as f:
@@ -137,7 +137,7 @@ def readFeatures (featuresDirPath):
     for filename in os.listdir(featuresDirPath):
         if "features" in filename:
             filepath=featuresDirPath+"/"+filename
-            filename=filename.split("_", 1)[0]
+            filename=filename.split("_")[0]
             with open(filepath) as f:
                 data = list(csv.reader(f))
                 updateDict(data,filename)
