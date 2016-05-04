@@ -16,6 +16,8 @@
 
 import os
 import csv
+import random
+import shutil
 from collections import OrderedDict
 
 continentDict=OrderedDict()
@@ -130,8 +132,18 @@ def buildFeaturesFiles(dataDirPath,featuresDirPath):
     dictToFile(osVerDict,"osVer",featuresDirPath)
     dictToFile (brwVerDict,"brwVer",featuresDirPath)
 
-
 # In[ ]:
+
+
+# move random 10% of the labeled data files to TestData directory.
+# this way they won't have an affect on feature selection.
+def moveFilesToTestDir(dataDirPath, testDirPath):
+    for filename in os.listdir(dataDirPath):
+        if random.random() > 0.9 and "labeled" in filename:
+            filePath = dataDirPath + "/" + filename
+            destPath = testDirPath + "/" + filename
+            shutil.move(filePath, destPath)
+
 
 
 
