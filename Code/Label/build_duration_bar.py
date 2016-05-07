@@ -33,23 +33,26 @@ def readFileToList(filepath):
 #add/update to dictionary from a single request file: (Host->URL->MinDuration) 
 def insertToDict (dict,data,hostplace,urlplace,durplace):
     for line in data:
-        #FIXME: round over cause line length was less then the host place
-        if len(line) < hostplace:
-            return 0
-        hostname=line[hostplace]
-        urlname=line[urlplace]
-        dur=float(line[durplace])
-        urldict={urlname:dur}
-        if hostname not in dict: #update new host
-            dict.update({hostname:urldict})
-        else:
-            allurls=dict[hostname] #the current host url's list
-            if urlname not in allurls: #update new url
-                dict[hostname].update(urldict)
-            else: #update min dur for existing host and url
-                mindur=np.minimum(dur,allurls[urlname])
-                (dict[hostname])[urlname]=mindur  #update min duration time 
+        try:
+            #FIXME: round over cause line length was less then the host place
+            if len(line) < hostplace:
+                return 0
+            hostname=line[hostplace]
+            urlname=line[urlplace]
+            dur=float(line[durplace])
+            urldict={urlname:dur}
+            if hostname not in dict: #update new host
+                dict.update({hostname:urldict})
+            else:
+                allurls=dict[hostname] #the current host url's list
+                if urlname not in allurls: #update new url
+                    dict[hostname].update(urldict)
+                else: #update min dur for existing host and url
+                    mindur=np.minimum(dur,allurls[urlname])
+                    (dict[hostname])[urlname]=mindur  #update min duration time
 
+        except:
+            print "index out of bounds in build_duration_bar.pyinsertToDict"
 
 # In[13]:
 

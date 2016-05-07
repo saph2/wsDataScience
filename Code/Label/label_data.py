@@ -113,13 +113,14 @@ def labelTheData(dict,data):
         i+=1
     #label the rows
     for line in data:
-        #FIXME: round over cause line length was less then the host place
-        if len(line) < hostplace:
-            return 0
-        lineHost=line[hostplace]
-        lineUrl=line[urlplace]
-        lineDur=float(line[durplace])
         try:
+        #FIXME: round over cause line length was less then the host place
+            if len(line) < hostplace:
+                return 0
+            lineHost=line[hostplace]
+            lineUrl=line[urlplace]
+            lineDur=float(line[durplace])
+
             minDur=(dict[lineHost])[lineUrl]
             #check if busy row
             label = isBusy(lineDur,minDur) #label row

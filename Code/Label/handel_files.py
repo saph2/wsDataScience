@@ -7,13 +7,19 @@ import shutil
 # move all files from daily folders to one folder,
 # each files name according to the folder (day) he came from
 def move_data_to_one_folder(dataFolder, rawdatafolder):
+
+    # this should be the path to all the unzipped data.
+    # don't change it, just comment this line and add your own.
+    # dataFolder = "C:\Users\Dell\Desktop\Data Set\UnZipped"
+    # dataFolder = dataFolder.replace("\\","/")
+
     for foldername in os.listdir(dataFolder):
         try:
             filePath = dataFolder + "/" + foldername + "/requests.csv"
             destPath = rawdatafolder + "/" + foldername + ".csv"
             shutil.move(filePath, destPath)
         except:
-            print "request file not exist in folder: " + foldername
+            print "requests file not exist in folder: " + foldername
 
 # move random 90% of the data files to TrainData directory.
 # the rest to TestData.
