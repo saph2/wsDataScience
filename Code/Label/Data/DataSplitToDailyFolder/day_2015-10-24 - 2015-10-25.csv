@@ -1,3 +1,0 @@
-TimeStamp,Browser,BrowserVer,Os,OsVer,RoleInst,Continent,Country,Province,City,OpName,Opid,Pid,Sid,IsFirst,Aid,Name,Success,Response,UrlBase,Host,ReqDuration
-2015-10-24 04:17:14.772735900,,,,,InsightsPortal_IN_1,North America,United States,California,Fremont,GET InsightsExtension/Index,1244334077929802959,,,,,GET InsightsExtension/Index,True,200,/,137.116.85.220,10575.3563
-2015-10-24 02:52:44.549629600,,,,,InsightsPortal_IN_1,North America,United States,California,Fremont,GET InsightsExtension/Index,1910106418958250113,,,,,GET InsightsExtension/Index,True,200,/,23.97.78.202,9925.4787

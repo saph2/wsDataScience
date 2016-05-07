@@ -33,6 +33,9 @@ def readFileToList(filepath):
 #add/update to dictionary from a single request file: (Host->URL->MinDuration) 
 def insertToDict (dict,data,hostplace,urlplace,durplace):
     for line in data:
+        #FIXME: round over cause line length was less then the host place
+        if len(line) < hostplace:
+            return 0
         hostname=line[hostplace]
         urlname=line[urlplace]
         dur=float(line[durplace])
