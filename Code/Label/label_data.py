@@ -102,7 +102,7 @@ def labelTheData(dict,data):
     i=0
     #find indexes
     for title in headline:
-        if title=='Host':
+        if title=='RoleInst':
             hostplace=i
         if title =='UrlBase':
             urlplace=i
