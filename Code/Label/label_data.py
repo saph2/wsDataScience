@@ -73,7 +73,7 @@ def readFileToList(filepath,newpath):
 
 #function for deciding busy row or not
 def isBusy(lineDur,minDur):
-    if lineDur>=(2*minDur): #twice as minimum duration
+    if lineDur>(1.5*minDur): #twice as minimum duration
         return 1
     else:
         return 0
