@@ -62,7 +62,7 @@ def updateAllDict(data):
             labelPlace = i
         i += 1
     #FIXME: work around
-    if continentPlace > 0:
+    if continentPlace > -1:
         for row in data:  # update all dictionaries for each row in the data
             updateFeature(row, continentPlace, continentDict, labelPlace)
             updateFeature(row, countryPlace, countryDict, labelPlace)
