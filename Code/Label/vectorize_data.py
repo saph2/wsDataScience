@@ -65,7 +65,7 @@ def vectorizeFile(data,newdata,isLabeled):
             labelPlace=i
         i+=1
     # FIXME: work around
-    if continentPlace > 0:
+    if continentPlace > -1:
         for row in data:
             newRow=[]
             addToNewRow(row,newRow,'continent',continentPlace)
