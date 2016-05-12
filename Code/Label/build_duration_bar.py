@@ -65,7 +65,7 @@ def createDictFromAllFiles (dict,allfiles):
         headline=data.pop(0)
         i=0
         for title in headline:
-            if title=='Host':
+            if title=='RoleInst':
                 hostplace=i
             if title =='UrlBase':
                 urlplace=i
