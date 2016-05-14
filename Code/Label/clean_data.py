@@ -1,13 +1,11 @@
 
 # coding: utf-8
 
-# In[ ]:
 
 import csv
 import os
 
 
-# In[1]:
 
 # remove comma from the tables
 def cleanData(data):
@@ -21,7 +19,6 @@ def cleanData(data):
     return data
 
 
-# In[3]:
 
 # clean all files in the given dir
 def cleanFilesInDir(dirpath):
@@ -43,7 +40,6 @@ def cleanFilesInDir(dirpath):
             f.close()
 
 
-# In[ ]:
 
 
 

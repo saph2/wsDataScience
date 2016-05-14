@@ -1,6 +1,5 @@
 # coding: utf-8
 
-# In[127]:
 
 import numpy as np
 from sklearn import preprocessing
@@ -9,7 +8,6 @@ import random
 import os
 
 
-# In[128]:
 
 # read vectors
 def read_vectors(vec_dir_path):
@@ -24,7 +22,6 @@ def read_vectors(vec_dir_path):
     return filtered_data
 
 
-# In[129]:
 
 def scale_and_filter_vectors(filtered_data):
     # cut headline
@@ -43,7 +40,6 @@ def scale_and_filter_vectors(filtered_data):
     return scaled_filtered_data, labels
 
 
-# In[130]:
 
 def build_classifier(train_samples, train_out):
     clf = svm.SVC(kernel='linear')
@@ -51,7 +47,6 @@ def build_classifier(train_samples, train_out):
     return clf
 
 
-# In[131]:
 
 def cross_val_model(scaled_filtered_data, labels):
     # divide to train and test
@@ -76,13 +71,26 @@ def cross_val_model(scaled_filtered_data, labels):
     a = np.array(clf.predict(test_samples).astype(int))
     c = np.array(a) == np.array(test_out)
 
+    resultsStr = "Accuracy                                    : " + str(sum(c) * 100.0 / len(a)) + " %" + "\n" + \
+                 "Number of support vectors for positive class: " + str(clf.n_support_[0]) + "\n" + \
+                 "Number of support vectors for negative class: " + str(clf.n_support_[1])
+
     # print results
-    print "Accuracy                                    : ", str(sum(c) * 100.0 / len(a)) + " %"
-    print "Number of support vectors for positive class: ", clf.n_support_[0]
-    print "Number of support vectors for negative class: ", clf.n_support_[1]
+    # print "Accuracy                                    : ", str(sum(c) * 100.0 / len(a)) + " %"
+    # print "Number of support vectors for positive class: ", clf.n_support_[0]
+    # print "Number of support vectors for negative class: ", clf.n_support_[1]
+
+    print resultsStr
+
+    # save to file
+    with open(pathToResultsFile, 'w') as f2:
+        f2.write(" -- train model --\n")
+        f2.write(resultsStr)
 
 
-# In[132]:
+# this is where we save all the results
+pathToResultsFile = "results.txt"
+
 
 # vecDirPath="Data/TrainVectors"
 def build_train_model(vec_dir_path):
@@ -96,7 +104,6 @@ def build_train_model(vec_dir_path):
     cross_val_model(vectors, labels)
 
 
-# In[133]:
 def predict_validation_set(validation_dir_path, train_dir_path):
     train_vectors = read_vectors(train_dir_path)
     (train_vectors, train_labels) = scale_and_filter_vectors(train_vectors)
@@ -108,11 +115,23 @@ def predict_validation_set(validation_dir_path, train_dir_path):
     a = np.array(clf.predict(validation_vectors).astype(int))
     c = np.array(a) == np.array(validation_labels)
 
+    resultsStr = "Accuracy                                    : " + str(sum(c) * 100.0 / len(a)) + " %" + "\n" + \
+                 "Number of support vectors for positive class: " + str(clf.n_support_[0]) + "\n" + \
+                 "Number of support vectors for negative class: " + str(clf.n_support_[1])
+
     # print results
-    print "Accuracy                                    : ", str(sum(c) * 100.0 / len(a)) + " %"
-    print "Number of support vectors for positive class: ", clf.n_support_[0]
-    print "Number of support vectors for negative class: ", clf.n_support_[1]
+    # print "Accuracy                                    : ", str(sum(c) * 100.0 / len(a)) + " %"
+    # print "Number of support vectors for positive class: ", clf.n_support_[0]
+    # print "Number of support vectors for negative class: ", clf.n_support_[1]
+    print resultsStr
+
+    # save to file
+    with open(pathToResultsFile, 'a') as f2:
+        f2.write("\n\n\n")
+        f2.write(" -- prediction -- \n")
+        f2.write(resultsStr)
 
 
-# In[134]:
+
+
 

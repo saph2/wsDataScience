@@ -59,3 +59,20 @@ def delete_files_from_dir(dirPath):
         if "empty" not in filename:
             filePath = dirPath + "/" + filename
             os.remove(filePath)
+
+
+# removes all files that were added during the run
+def remove_all_files_from_all_folders():
+
+    delete_files_from_dir("Data/Features")
+    delete_files_from_dir("Data/LabeledData")
+    delete_files_from_dir("Data/MinDurationBar")
+    delete_files_from_dir("Data/TrainVectors")
+
+    delete_files_from_dir("Data/Train/TrainLabeledData")
+    delete_files_from_dir("Data/Train/TrainRawData")
+    delete_files_from_dir("Data/Train/TrainVectors")
+
+    delete_files_from_dir("Data/Validation/ValidationLabeledData")
+    delete_files_from_dir("Data/Validation/ValidationRawData")
+    delete_files_from_dir("Data/Validation/ValidationVectors")

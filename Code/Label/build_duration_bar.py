@@ -1,7 +1,6 @@
 
 # coding: utf-8
 
-# In[9]:
 
 # this program builds the bar we will use for labeling our data
 # the input are requests files found in the Dir: "Data/DataForBar"
@@ -10,7 +9,6 @@
 # output: the dictionary is saved to a file called "barFile" in the same Dir
 
 
-# In[10]:
 
 import numpy as np
 import csv
@@ -19,7 +17,6 @@ dict = {}
 allfiles=list()
 
 
-# In[11]:
 
 def readFileToList(filepath):
     with open(filepath) as f:
@@ -28,7 +25,6 @@ def readFileToList(filepath):
     return data
 
 
-# In[12]:
 
 #add/update to dictionary from a single request file: (Host->URL->MinDuration) 
 def insertToDict (dict,data,hostplace,urlplace,durplace):
@@ -54,7 +50,6 @@ def insertToDict (dict,data,hostplace,urlplace,durplace):
         except:
             print "index out of bounds in build_duration_bar.pyinsertToDict"
 
-# In[13]:
 
 #fill the dictionary from all the requests files
 def createDictFromAllFiles (dict,allfiles):
@@ -64,6 +59,7 @@ def createDictFromAllFiles (dict,allfiles):
         data.reverse
         headline=data.pop(0)
         i=0
+        # featuresIndex = {}
         for title in headline:
             if title=='RoleInst':
                 hostplace=i
@@ -71,12 +67,13 @@ def createDictFromAllFiles (dict,allfiles):
                 urlplace=i
             if title=='ReqDuration':
                 durplace=i
+            # if title in featuresOfInterest:
+            #     featuresIndex[title] = i
             i+=1
         #add data to dict
         insertToDict(dict,data,hostplace,urlplace,durplace)        
 
 
-# In[14]:
 
 #save dictionary to File
 def saveDictToFile(dirpath):
@@ -91,7 +88,6 @@ def saveDictToFile(dirpath):
         f2.close()
 
 
-# In[15]:
 
 #create a dictionary from files in the form of: (Host->URL->MinDuration) 
 #dirpath="Data/DataForBar"
@@ -103,7 +99,6 @@ def buildBar(dirpath, barFolder):
     saveDictToFile(barFolder)
 
 
-# In[ ]:
 
 
 

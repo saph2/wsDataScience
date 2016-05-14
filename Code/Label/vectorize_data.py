@@ -1,7 +1,6 @@
 
 # coding: utf-8
 
-# In[1]:
 
 # this program vectorize the rows of the requests files in the given folder
 # input: name of folder that contains requests files, and output folder for the vectors
@@ -9,7 +8,6 @@
 # output: writes vectors files to the Folders "TrainVectors" or "ValidationVectors" (chosen by input)
 
 
-# In[2]:
 
 import os
 import csv
@@ -23,7 +21,6 @@ dict.update({"osVer":{}})
 dict.update({"brwVer":{}})
 
 
-# In[3]:
 
 #update dict from the scaled Features file
 def updateDict (data, filename):
@@ -38,47 +35,59 @@ def updateDict (data, filename):
         i+=1
     for row in data:
         tempDict={row[fieldNamePlace]:row[fieldIDPlace]}
-        dict[filename].update(tempDict)    
+        dict[filename].update(tempDict)
 
 
-# In[4]:
 
-#create a vectorized data for the current file
-def vectorizeFile(data,newdata,isLabeled):
-    # FIXME: work around
-    continentPlace = countryPlace = opNamePlace = osVerPlace = brwVerPlace = labelPlace = -1
-    data.reverse
+#{"continent", "country", "opName", "osVer", "brwVer"}
+featuresNames = {'TimeStamp', 'Browser', 'BrowserVer', 'Os', 'OsVer', 'RoleInst', 'Continent', 'Country', 'Province', 'City', 'OpName', 'Opid', 'Pid', 'Sid', 'IsFirst', 'Aid', 'Name', 'Success', 'Response', 'UrlBase', 'Host', 'ReqDuration', 'Label', ''}
+
+def changeFirstLetter(str):
+    if not str:
+        return str
+    res = str[0].lower()
+    res = res + str[1:]
+    return res
+
+
+def vectorizeFile(data, newdata, isLabeled, featuresOfInterest):
     headline=data.pop(0)
     i=0
+    isUpdated = False
+
+    # initialize featuresPlaces
+    featuresPlaces = {}
+    for feature in featuresOfInterest:
+        featuresPlaces[feature] = -1
+
     for title in headline:
-        if title=='Continent':
-            continentPlace=i
-        if title =='Country':
-            countryPlace=i
-        if title=='OpName':
-            opNamePlace=i
-        if title == "OsVer":
-            osVerPlace=i
-        if title == "BrowserVer":
-            brwVerPlace=i
+        titleToLower = changeFirstLetter(title) # 'OsVer' --> 'osVer'
+        if titleToLower in featuresOfInterest:
+            featuresPlaces[titleToLower] = i
         if title == "Label":
             labelPlace=i
         i+=1
-    # FIXME: work around
-    if continentPlace > -1:
+
+    for feature in featuresPlaces.keys():
+        if featuresPlaces[feature] > -1:
+            isUpdated = True
+            break
+
+    if isUpdated:
         for row in data:
             newRow=[]
-            addToNewRow(row,newRow,'continent',continentPlace)
-            addToNewRow(row,newRow,'country',countryPlace)
-            addToNewRow(row,newRow,'opName',opNamePlace)
-            addToNewRow(row,newRow,'osVer',osVerPlace)
-            addToNewRow(row,newRow,'brwVer',brwVerPlace)
+            addAllToNewRow(row, newRow, featuresOfInterest, featuresPlaces)
             if isLabeled:
                 newRow.append(row[labelPlace])
             newdata.append(newRow)
 
 
-# In[5]:
+
+# add all features to new line
+def addAllToNewRow(row, newRow, featuresOfInterest, featuresPlaces):
+    for feature in featuresOfInterest:
+        addToNewRow(row, newRow, feature, featuresPlaces[feature])
+
 
 # create a new vector from the given row
 def addToNewRow (row,newRow,featureTitle,featurePlace):
@@ -91,16 +100,22 @@ def addToNewRow (row,newRow,featureTitle,featurePlace):
     newRow.append(index)
 
 
-# In[6]:
+
+def getHeadLine(featuresOfInterest):
+    headline = featuresOfInterest[0]
+    for i in range(1, len(featuresOfInterest)):
+      headline = headline + ',' + featuresOfInterest[i]
+    return headline
 
 # write output to file (vectors)
-def writeVectorsFile (filepath,newdata,isLabeled):
+def writeVectorsFile (filepath,newdata,isLabeled, featuresOfInterest):
     newdata.reverse
-    
+    # headline = "Continent,Country,OpName,OsVer,BrowserVer"
+    headline = getHeadLine(featuresOfInterest)
     if isLabeled:
-        headline="Continent,Country,OpName,OsVer,BrowserVer,Label\n"
-    else:
-        headline="Continent,Country,OpName,OsVer,BrowserVer\n"
+        headline = headline + ",label"
+    headline = headline + "\n"
+
    
     with open(filepath,'w') as f2:
         f2.write('%s' % headline)
@@ -114,10 +129,9 @@ def writeVectorsFile (filepath,newdata,isLabeled):
         f2.close() 
 
 
-# In[7]:
 
 #vectorizes all files in the Dir
-def vectorizeFilesInDir(dataDirPath,vectorsDirPath,isLabeled):
+def vectorizeFilesInDir(dataDirPath,vectorsDirPath,isLabeled, featuresOfInterest):
     for filename in os.listdir(dataDirPath):
         if "empty" not in filename:
             filepath=dataDirPath+"/"+filename #oldpath
@@ -127,13 +141,11 @@ def vectorizeFilesInDir(dataDirPath,vectorsDirPath,isLabeled):
             with open(filepath) as f:
                 data = list(csv.reader(f))
                 newdata=list()
-                vectorizeFile(data,newdata,isLabeled)
-                f.close
+                vectorizeFile(data,newdata,isLabeled, featuresOfInterest)
 
-            writeVectorsFile(newpath,newdata,isLabeled)
+            writeVectorsFile(newpath,newdata,isLabeled, featuresOfInterest)
 
 
-# In[8]:
 
 #read all "Features" to dictionary
 def readFeatures (featuresDirPath):
@@ -147,19 +159,17 @@ def readFeatures (featuresDirPath):
                 f.close
 
 
-# In[9]:
 
 #vectorizes the data in dataDirPath and save to vectorsDirPath
 
 #featuresDirPath="Data/Features"
 #dataDirPath="Data/LabeledData"
 
-def dataToVectors (featuresDirPath, dataDirPath, vectorsDirPath,isLabeled):
+def dataToVectors (featuresDirPath, dataDirPath, vectorsDirPath,isLabeled, featuresOfInterest):
     readFeatures(featuresDirPath)
-    vectorizeFilesInDir(dataDirPath,vectorsDirPath,isLabeled) 
+    vectorizeFilesInDir(dataDirPath,vectorsDirPath,isLabeled, featuresOfInterest)
 
 
-# In[ ]:
 
 
 

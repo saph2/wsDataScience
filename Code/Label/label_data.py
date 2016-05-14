@@ -1,7 +1,6 @@
 
 # coding: utf-8
 
-# In[40]:
 
 # this program labels our data
 # the input are requests files found in the Dir: "Data/DataToLabel"
@@ -11,16 +10,17 @@
 # output: each file is saved as it was, with the exception of an additional label column, to the Dir: "Data/labeledData"
 
 
-# In[49]:
 
 import numpy as np
 import csv
 import os
+
+busyCoefficient = 1.5
+
 allfiles=list()
 dict = {}
 
 
-# In[50]:
 
 #read dictionary File into dictionary DataStruct
 def readBarFile(barDirPath):
@@ -52,7 +52,6 @@ def readBarFile(barDirPath):
                 dict[hostname].update(urldict)
 
 
-# In[51]:
 
 #read the file intended to be labeled into DataStructure
 def readFileToList(filepath,newpath):
@@ -69,17 +68,15 @@ def readFileToList(filepath,newpath):
     return data
 
 
-# In[52]:
 
 #function for deciding busy row or not
 def isBusy(lineDur,minDur):
-    if lineDur>(1.5*minDur): #twice as minimum duration
+    if lineDur > (busyCoefficient * minDur): #twice as minimum duration
         return 1
     else:
         return 0
 
 
-# In[53]:
 
 #save labeled data to file
 def labeledDataToFile(filepath,data):
@@ -91,9 +88,10 @@ def labeledDataToFile(filepath,data):
         f2.close()
 
 
-# In[54]:
 
 # label the data from a single file
+t0 = False
+t1 = False
 
 def labelTheData(dict,data):
     data.reverse
@@ -124,6 +122,10 @@ def labelTheData(dict,data):
             minDur=(dict[lineHost])[lineUrl]
             #check if busy row
             label = isBusy(lineDur,minDur) #label row
+            # if (label==0):
+            #     label+=0
+            # if(label == 1):
+            #     label+=0
             line[labelplace]=label #label row
         except:
             #FIXME: think what label to put
@@ -131,7 +133,6 @@ def labelTheData(dict,data):
     data.insert(0,headline)
 
 
-# In[55]:
 
 #label all files in the dir
 
@@ -160,7 +161,6 @@ def labelAllfiles(dataDir,labelDir,barDir):
             labeledDataToFile(newpath,data)
 
 
-# In[ ]:
 
 
 
