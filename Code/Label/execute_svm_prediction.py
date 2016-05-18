@@ -128,7 +128,7 @@ def predict_validation_set(validation_dir_path, train_dir_path):
     # save to file
     with open(pathToResultsFile, 'a') as f2:
         f2.write("\n\n\n")
-        f2.write(" -- prediction -- \n")
+        f2.write(" -- prediction SVM -- \n")
         f2.write(resultsStr)
 
 
