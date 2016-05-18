@@ -14,11 +14,11 @@ import csv
 from collections import OrderedDict
 
 dict=OrderedDict()
-dict.update({"country":{}})
-dict.update({"continent":{}})
-dict.update({"opName":{}})
-dict.update({"osVer":{}})
-dict.update({"brwVer":{}})
+# dict.update({"country":{}})
+# dict.update({"continent":{}})
+# dict.update({"opName":{}})
+# dict.update({"osVer":{}})
+# dict.update({"brwVer":{}})
 
 
 
@@ -147,6 +147,10 @@ def vectorizeFilesInDir(dataDirPath,vectorsDirPath,isLabeled, featuresOfInterest
             writeVectorsFile(newpath,newdata,isLabeled, featuresOfInterest)
 
 
+def initDict(featuresOfInterest):
+    for feature in featuresOfInterest:
+        dict.update({feature:{}})
+
 
 #read all "Features" to dictionary
 def readFeatures (featuresDirPath):
@@ -156,6 +160,7 @@ def readFeatures (featuresDirPath):
             filename=filename.split("_")[0]
             with open(filepath) as f:
                 data = list(csv.reader(f))
+                dict.update({filename:{}})
                 updateDict(data,filename)
                 f.close
 
@@ -167,6 +172,7 @@ def readFeatures (featuresDirPath):
 #dataDirPath="Data/LabeledData"
 
 def dataToVectors (featuresDirPath, dataDirPath, vectorsDirPath,isLabeled, featuresOfInterest):
+    initDict(featuresOfInterest)
     readFeatures(featuresDirPath)
     vectorizeFilesInDir(dataDirPath,vectorsDirPath,isLabeled, featuresOfInterest)
 
