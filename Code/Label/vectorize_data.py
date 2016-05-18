@@ -61,7 +61,8 @@ def vectorizeFile(data, newdata, isLabeled, featuresOfInterest):
         featuresPlaces[feature] = -1
 
     for title in headline:
-        titleToLower = changeFirstLetter(title) # 'OsVer' --> 'osVer'
+        # TODO remove func call to lowerFirstLetter
+        titleToLower = title #changeFirstLetter(title) # 'OsVer' --> 'osVer'
         if titleToLower in featuresOfInterest:
             featuresPlaces[titleToLower] = i
         if title == "Label":

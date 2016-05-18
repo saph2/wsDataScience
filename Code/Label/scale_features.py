@@ -15,6 +15,8 @@ import os
 import csv
 from collections import OrderedDict
 
+from Code.Label import vectorize_data
+
 continentDict = OrderedDict()
 countryDict = OrderedDict()
 opNameDict = OrderedDict()
@@ -44,7 +46,7 @@ def updateFeaturesInAllDicts(row, featuresPlaces, allFeaturesDicts, labelPlace):
         updateFeature(row, featuresPlaces[feature], allFeaturesDicts[feature], labelPlace)
 
 
-
+#<type 'list'>: ['TimeStamp', 'Browser', 'BrowserVer', 'Os', 'OsVer', 'RoleInst', 'Continent', 'Country', 'Province', 'City', 'OpName', 'Opid', 'Pid', 'Sid', 'IsFirst', 'Aid', 'Name', 'Success', 'Response', 'UrlBase', 'Host', 'ReqDuration', 'Label', '']
 
 def updateAllDict(data, allFeaturesDicts, featuresOfInterest):
     data.reverse
@@ -53,7 +55,7 @@ def updateAllDict(data, allFeaturesDicts, featuresOfInterest):
     isUpdated = False
 
     featuresPlaces = {}
-    # initialize featuresOfInterest to 0
+    # initialize featuresOfInterest to -1
     for feature in featuresOfInterest:
         featuresPlaces[feature] = -1
 
@@ -64,6 +66,7 @@ def updateAllDict(data, allFeaturesDicts, featuresOfInterest):
 
         # save all features besides the label
         if title in featuresOfInterest:
+            # title = vectorize_data.changeFirstLetter(title)
             featuresPlaces[title] = i
 
         i += 1
