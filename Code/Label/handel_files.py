@@ -64,10 +64,10 @@ def delete_files_from_dir(dirPath):
 # removes all files that were added during the run
 def remove_all_files_from_all_folders():
 
-    delete_files_from_dir("Data/Train/TrainLabeledData")
-    delete_files_from_dir("Data/Train/TrainRawData")
-    delete_files_from_dir("Data/Train/TrainVectors")
+    delete_files_from_dir("Train/TrainLabeledData")
+    delete_files_from_dir("Train/TrainRawData")
+    delete_files_from_dir("Train/TrainVectors")
 
-    delete_files_from_dir("Data/Validation/ValidationLabeledData")
-    delete_files_from_dir("Data/Validation/ValidationRawData")
-    delete_files_from_dir("Data/Validation/ValidationVectors")
+    delete_files_from_dir("Validation/ValidationLabeledData")
+    delete_files_from_dir("Validation/ValidationRawData")
+    delete_files_from_dir("Validation/ValidationVectors")
