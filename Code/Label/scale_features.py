@@ -15,90 +15,80 @@ import os
 import csv
 from collections import OrderedDict
 
-continentDict = OrderedDict()
-countryDict = OrderedDict()
-opNameDict = OrderedDict()
-osVerDict = OrderedDict()
-brwVerDict = OrderedDict()
-tempDict = OrderedDict()
+from Code.Label import vectorize_data
 
-
-
-# for the given feature - update its dictionary
+# for the given feature - update its dictionary from the given row
 # dictionary build for exmp: country_name: [count #label '0', count #label '1']
-def updateFeature(row, featurePlace, featureDict, labelPlace):
-    featureName = row[featurePlace]
-    label = int(row[labelPlace])
+def updateFeature(row, featurePlace, featureDict, labelPlace,numberOfClasses):
+    featureName = row[featurePlace] #row[countryName] = England
+    label = int(row[labelPlace]) #row[label]=1
     if featureName not in featureDict:
-        newCounter = [0, 0]
+        newCounter = [0 for i in range(0,numberOfClasses)]
         featureDict.update({featureName: newCounter})
-    featureDict[featureName][label] += 1
+    featureDict[featureName][label] += 1 #DictCountry[England][1]+=1
 
 
 
-#updateFeatureAllDicts(row, featuresIndexes, allFeatureDicts,labelPlace)
+# update all the dictionaries with the info from current row in the current file
+def updateFeaturesInAllDicts(row, featuresPlaces, allFeaturesDicts, labelPlace,numberOfClasses):
+    for feature in featuresPlaces.keys():
+        updateFeature(row, featuresPlaces[feature], allFeaturesDicts[feature], labelPlace,numberOfClasses)  #send: (row, countyIndex, countryDict, labelIndex)
+
+
+#<type 'list'>: ['TimeStamp', 'Browser', 'BrowserVer', 'Os', 'OsVer', 'RoleInst', 'Continent', 'Country', 'Province', 'City', 'OpName', 'Opid', 'Pid', 'Sid', 'IsFirst', 'Aid', 'Name', 'Success', 'Response', 'UrlBase', 'Host', 'ReqDuration', 'Label', '']
 
 # update all the dictionaries with the info from the current file
-def updateFeaturesInAllDicts(row, featuresPlaces, allFeaturesDicts, labelPlace):
-    for feature in featuresPlaces.keys():
-        updateFeature(row, featuresPlaces[feature], allFeaturesDicts[feature], labelPlace)
-
-
-
-
-def updateAllDict(data, allFeaturesDicts, featuresOfInterest):
+def updateAllDict(data, allFeaturesDicts, featuresOfInterest,numberOfClasses):
     data.reverse
     headline = data.pop(0)
-    i = 0
-    isUpdated = False
 
     featuresPlaces = {}
-    # initialize featuresOfInterest to 0
-    for feature in featuresOfInterest:
+    for feature in featuresOfInterest:  # initialize featuresOfInterestIndex to -1
         featuresPlaces[feature] = -1
+    labelPlace=-1
 
-    for title in headline:
-        # save only the label
+    i = 0
+    for title in headline: # save only the label
         if title == "Label":
             labelPlace = i
-
-        # save all features besides the label
-        if title in featuresOfInterest:
+        if title in featuresOfInterest: # save all features besides the label
             featuresPlaces[title] = i
-
         i += 1
 
     # make sure that all is OK with the files
     for index in featuresPlaces.keys():
-        if featuresPlaces[index] > -1:
-            isUpdated = True
-            break
+        if featuresPlaces[index] < 0:
+            print ("indexs not found in request file in label_data.py: updateAllDict")
+            exit(0)
+    if labelPlace<0:
+        print ("indexs not found in request file in scale_features.py: updateAllDict")
+        exit(0)
 
-    # if all is OK then isUpdated == True
-    if isUpdated:
-        for row in data:  # update all dictionaries for each row in the data
-            updateFeaturesInAllDicts(row, featuresPlaces, allFeaturesDicts, labelPlace)
+    for row in data:  # update all dictionaries for each row in the data
+        updateFeaturesInAllDicts(row, featuresPlaces, allFeaturesDicts, labelPlace,numberOfClasses)
 
+# return the dict tuples and busy prop:
+# input: county-> England-> [busy, notBusy]
+# output: country -> England -> #busy/#total
 
-
-
-# return the dictionary build for exmp: country_name: #busy/#total
-def getBusyPerDict(dictName):
-    tempDict.clear()
-    for key in dictName:
-        busy = float(dictName[key][1]) / float(dictName[key][0] + dictName[key][1])
+def getBusyPerDict(dictName,numberOfClasses):
+    tempDict = OrderedDict()
+    for key in dictName:# to change!!
+        total=dictName[key][0]
+        onlyBusy=0
+        for i in range (1,numberOfClasses):
+            onlyBusy+=dictName[key][i]*i
+        total+=onlyBusy
+        busy = float(onlyBusy / total)
         tempDict.update({key: busy})
     return tempDict
 
 
 
 # save dictionary to file
-
-# featuresDirPath="Data/Features"
-
-def dictToFile(dictName, fileName, featuresDirPath):
+def dictToFile(dictName, fileName, featuresDirPath,numberOfClasses):
     # call for probability analysis function
-    dictName = getBusyPerDict(dictName)
+    dictName = getBusyPerDict(dictName,numberOfClasses)
 
     # order keys by busy values
     dictName = OrderedDict(sorted(dictName.items(), key=lambda t: t[1]))
@@ -116,42 +106,30 @@ def dictToFile(dictName, fileName, featuresDirPath):
         f2.close()
 
 
-
 # write all updated dictionaries to files
-def writeDictsToFiles(featuresOfInterest, allFeaturesDicts, featuresDirPath):
+def writeDictsToFiles(featuresOfInterest, allFeaturesDicts, featuresDirPath,numberOfClasses):
     for feature in featuresOfInterest:
-        dictToFile(allFeaturesDicts[feature], feature, featuresDirPath)
+        dictToFile(allFeaturesDicts[feature], feature, featuresDirPath,numberOfClasses)
 
 
 
 # create features files from the labeled data
-
-# dataDirPath="Data/LabeledData"
-
-
-def buildFeaturesFiles(dataDirPath, featuresDirPath, featuresOfInterest):
+def buildFeaturesFiles(dataDirPath, featuresDirPath, featuresOfInterest,numberOfClasses):
     # create all dictionaries
-    allFeaturesDicts = {}
+    allFeaturesDicts = OrderedDict()
     for feature in featuresOfInterest:
-        allFeaturesDicts[feature] = {}
-
+        allFeaturesDicts[feature] = OrderedDict()
     # go over each file and update all the dictionaries
     for filename in os.listdir(dataDirPath):
         if not "empty" in filename and "labeled" in filename:
             filepath = dataDirPath + "/" + filename
             with open(filepath) as f:
                 data = list(csv.reader(f))
-                # f.close
-            updateAllDict(data, allFeaturesDicts, featuresOfInterest)
+                f.close()
+            updateAllDict(data, allFeaturesDicts, featuresOfInterest,numberOfClasses)
 
-    # send all the updated dictionaries to files
-    # dictToFile(continentDict, "continent", featuresDirPath)
-    # dictToFile(countryDict, "country", featuresDirPath)
-    # dictToFile(opNameDict, "opName", featuresDirPath)
-    # dictToFile(osVerDict, "osVer", featuresDirPath)
-    # dictToFile(brwVerDict, "brwVer", featuresDirPath)
-
-    writeDictsToFiles(featuresOfInterest, allFeaturesDicts, featuresDirPath)
+    #write the dicts to their files
+    writeDictsToFiles(featuresOfInterest, allFeaturesDicts, featuresDirPath,numberOfClasses)
 
 
 

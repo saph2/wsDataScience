@@ -1,4 +1,3 @@
-
 # coding: utf-8
 
 
@@ -14,73 +13,79 @@
 import numpy as np
 import csv
 import os
+from collections import OrderedDict
 
-busyCoefficient = 1.5
-
-allfiles=list()
-dict = {}
-
+allfiles = list()
+barDict = OrderedDict()
 
 
-#read dictionary File into dictionary DataStruct
+# read dictionary File into dictionary DataStruct
 def readBarFile(barDirPath):
-    barPath=barDirPath+"/barFile.csv"
+    barPath = barDirPath + "/barFile.csv"
     with open(barPath) as f:
         dictdata = list(csv.reader(f))
         f.close
     dictdata.reverse
-    headline=dictdata.pop(0)
-    i=0
+    headline = dictdata.pop(0)
+    hostplace = -1
+    urlplace = -1
+    mindurplace = -1
+    maxdurplace = -1
+    i = 0
     for title in headline:
-        if title=='Host':
-            hostplace=i
-        if title =='URL':
-            urlplace=i
-        if title=='MinDuration':
-            durplace=i
-        i+=1
+        if title == 'Host':
+            hostplace = i
+        if title == 'URL':
+            urlplace = i
+        if title == 'MinDuration':
+            mindurplace = i
+        if title == 'MaxDuration':
+            maxdurplace = i
+        i += 1
+    if hostplace < 0 or urlplace < 0 or mindurplace < 0 or maxdurplace < 0:
+        print ("indexs not found in request file in label_data.py: readBarFile")
+        exit(0)
     for line in dictdata:
-        hostname=line[hostplace]
-        urlname=line[urlplace]
-        dur=float(line[durplace])
-        urldict={urlname:dur}
-        if hostname not in dict: #update new host
-            dict.update({hostname:urldict})
-        else:
-            allurls=dict[hostname] #the current host url's list
-            if urlname not in allurls: #update new url
-                dict[hostname].update(urldict)
+        try:
+            hostname = line[hostplace]
+            urlname = line[urlplace]
+            dur = [float(line[mindurplace]), float(line[maxdurplace])]
+        except:
+            print ("index out of bounds in label_data.py: readBarFile")
+            exit(0)
+        if hostname not in barDict.keys():  # update host
+            barDict[hostname] = OrderedDict()
+        barDict[hostname].update({urlname: dur})  # update new url
 
 
-
-#read the file intended to be labeled into DataStructure
-def readFileToList(filepath,newpath):
+# read the file intended to be labeled into DataStructure
+def readFileToList(filepath, newpath):
     with open(filepath) as f:
-        with open(newpath,'w') as f2:
-            writer=csv.writer(f2)
+        with open(newpath, 'w') as f2:
+            writer = csv.writer(f2)
             for row in csv.reader(f):
-                writer.writerow(row+["Label"])
+                writer.writerow(row + ["Label"])
             f2.close
         f.close
-    with open(newpath,'r') as f2:
+    with open(newpath, 'r') as f2:
         data = list(csv.reader(f2))
         f2.close
     return data
 
 
+# function for deciding busy row or not
+def isBusy(lineDur, dur, numberOfClasses):
+    rangeDur = float(dur[1] - dur[0])  # if min=20 and max 80: range=60
+    divideRange = rangeDur / numberOfClasses
+    for i in range(0, numberOfClasses - 1):
+        if lineDur <= dur[0] + ((i + 1) * divideRange) / 100:
+            return i
+    return (numberOfClasses - 1)  # maxValue
 
-#function for deciding busy row or not
-def isBusy(lineDur,minDur):
-    if lineDur > (busyCoefficient * minDur): #twice as minimum duration
-        return 1
-    else:
-        return 0
 
-
-
-#save labeled data to file
-def labeledDataToFile(filepath,data):
-    with open(filepath,'w') as f2:
+# save labeled data to file
+def labeledDataToFile(filepath, data):
+    with open(filepath, 'w') as f2:
         for line in data:
             for word in line:
                 f2.write('%s,' % word)
@@ -88,77 +93,68 @@ def labeledDataToFile(filepath,data):
         f2.close()
 
 
-
-# label the data from a single file
-t0 = False
-t1 = False
-
-def labelTheData(dict,data):
+def labelTheData(data, numberOfClasses):
     data.reverse
-
-    headline=data.pop(0)
-    i=0
-    #find indexes
+    headline = data.pop(0)
+    hostplace = -1
+    urlplace = -1
+    durplace = -1
+    labelplace = -1
+    i = 0
+    # find indexes
     for title in headline:
-        if title=='RoleInst':
-            hostplace=i
-        if title =='UrlBase':
-            urlplace=i
-        if title=='ReqDuration':
-            durplace=i
-        if title=='Label':
-            labelplace=i
-        i+=1
-    #label the rows
+        if title == 'RoleInst':
+            hostplace = i
+        if title == 'UrlBase':
+            urlplace = i
+        if title == 'ReqDuration':
+            durplace = i
+        if title == 'Label':
+            labelplace = i
+        i += 1
+    # label the rows
+    if hostplace < 0 or urlplace < 0 or durplace < 0 or labelplace < 0:
+        print ("indexs not found in request file in label_data.py: labelTheData")
+        exit(0)
     for line in data:
         try:
-        #FIXME: round over cause line length was less then the host place
-            if len(line) < hostplace:
-                return 0
-            lineHost=line[hostplace]
-            lineUrl=line[urlplace]
-            lineDur=float(line[durplace])
+            lineHost = line[hostplace]
+            lineUrl = line[urlplace]
+            lineDur = float(line[durplace])
+            try:
+                durURL = (barDict[lineHost])[lineUrl]
+                # check if busy row
+                label = isBusy(lineDur, durURL, numberOfClasses)  # label row
+            except:
+                label = 0
 
-            minDur=(dict[lineHost])[lineUrl]
-            #check if busy row
-            label = isBusy(lineDur,minDur) #label row
-            # if (label==0):
-            #     label+=0
-            # if(label == 1):
-            #     label+=0
-            line[labelplace]=label #label row
+            line[labelplace] = label  # label the row
+
         except:
-            #FIXME: think what label to put
-            line[labelplace]=0
-    data.insert(0,headline)
+            print ("index out of bounds in label_data.py: labelTheData")
+            exit(0)
+    data.insert(0, headline)
 
 
+# label all files in the dir
+def labelAllfiles(dataDir, labelDir, barDir, numberOfClasses):
+    readBarFile(barDir)  # update bar dictionary
 
-#label all files in the dir
-
-#dataDir="Data/DataToLabel"
-#labelDir="Data/LabeledData"
-#barDir="Data/DataForBar"
-
-def labelAllfiles(dataDir,labelDir,barDir):
-    
-    readBarFile(barDir)#update bar dictionary
-    
-    for filename in os.listdir(dataDir): #add all requests files in the diractory
+    for filename in os.listdir(dataDir):  # add all requests files in the diractory
         if "empty" not in filename:
-            filepath=dataDir+"/"+filename #oldpath
+            filepath = dataDir + "/" + filename  # oldpath
 
-            newpath=labelDir+"/"+filename #newpath
-            newpath=newpath.split(".csv")[0]+"_labeled.csv"
+            newpath = labelDir + "/" + filename  # newpath
+            newpath = newpath.split(".csv")[0] + "_labeled.csv"
 
-            #copy the file to the labelDir and add "Label" column then save to Data
-            data=readFileToList(filepath,newpath)
+            # copy the file to the labelDir and add "Label" column then save to Data
+            data = readFileToList(filepath, newpath)
 
-            #label the data of the file
-            labelTheData (dict,data)
+            # label the data of the file
+            labelTheData(data, numberOfClasses)
 
-            #save data to file
-            labeledDataToFile(newpath,data)
+            # save data to file
+            labeledDataToFile(newpath, data)
 
 
 

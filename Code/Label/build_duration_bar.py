@@ -13,7 +13,8 @@
 import numpy as np
 import csv
 import os
-dict = {}
+from collections import OrderedDict
+barDict = OrderedDict()
 allfiles=list()
 
 
@@ -25,41 +26,39 @@ def readFileToList(filepath):
     return data
 
 
-
-#add/update to dictionary from a single request file: (Host->URL->MinDuration) 
-def insertToDict (dict,data,hostplace,urlplace,durplace):
+#add/update to dictionary from a single request file: (Host->URL->MinDuration)
+def insertToDict (data,hostplace,urlplace,durplace):
     for line in data:
         try:
-            #FIXME: round over cause line length was less then the host place
-            if len(line) < hostplace:
-                return 0
             hostname=line[hostplace]
             urlname=line[urlplace]
             dur=float(line[durplace])
-            urldict={urlname:dur}
-            if hostname not in dict: #update new host
-                dict.update({hostname:urldict})
-            else:
-                allurls=dict[hostname] #the current host url's list
-                if urlname not in allurls: #update new url
-                    dict[hostname].update(urldict)
-                else: #update min dur for existing host and url
-                    mindur=np.minimum(dur,allurls[urlname])
-                    (dict[hostname])[urlname]=mindur  #update min duration time
-
+            urldict={urlname:[dur,dur]}
         except:
-            print "index out of bounds in build_duration_bar.pyinsertToDict"
-
+            print ("index out of bounds in build_duration_bar.py: insertToDict")
+            exit(0)
+        if hostname not in barDict.keys(): #update new host
+            barDict[hostname]=urldict
+        else:
+            allurls=barDict[hostname] #all the host's urls
+            if urlname not in allurls.keys(): #update new url
+                barDict[hostname].update(urldict)
+            else: #update min and max dur for existing host and url
+                mindur=np.minimum(dur,allurls[urlname][0])
+                maxdur=np.maximum(dur,allurls[urlname][1])
+                barDict[hostname].update({urlname:[mindur,maxdur]})  #update min and max duration time
 
 #fill the dictionary from all the requests files
-def createDictFromAllFiles (dict,allfiles):
+def createDictFromAllFiles (allfiles):
     for filepath in allfiles:
         data=readFileToList(filepath)
         #find the place of the host, url and reqDuration in the data
         data.reverse
         headline=data.pop(0)
+        hostplac=-1
+        urlplace=-1
+        durplace=-1
         i=0
-        # featuresIndex = {}
         for title in headline:
             if title=='RoleInst':
                 hostplace=i
@@ -67,11 +66,12 @@ def createDictFromAllFiles (dict,allfiles):
                 urlplace=i
             if title=='ReqDuration':
                 durplace=i
-            # if title in featuresOfInterest:
-            #     featuresIndex[title] = i
             i+=1
         #add data to dict
-        insertToDict(dict,data,hostplace,urlplace,durplace)        
+        if hostplace<0 or urlplace<0 or durplace<0:
+            print "indexs not found in request file in build_duration_bar.py: createDictFromAllFiles"
+            exit(0)
+        insertToDict(data,hostplace,urlplace,durplace)
 
 
 
@@ -79,23 +79,23 @@ def createDictFromAllFiles (dict,allfiles):
 def saveDictToFile(dirpath):
     barPath=dirpath+"/barFile.csv"
     with open(barPath,'w') as f2:
-        f2.write("Host,URL,MinDuration\n")
-        for host in dict:
-            hostdict=dict[host]
+        f2.write("Host,URL,MinDuration,MaxDuration\n")
+        for host in barDict:
+            hostdict=barDict[host]
             for url in hostdict:
                 dur=hostdict[url]
-                f2.write("%s,%s,%f\n" % (host, url, dur))
+                f2.write("%s,%s,%f,%f\n" % (host, url, dur[0], dur[1]))
         f2.close()
 
 
 
-#create a dictionary from files in the form of: (Host->URL->MinDuration) 
+#create a dictionary from files in the form of: (Host->URL->MinDuration)
 #dirpath="Data/DataForBar"
 def buildBar(dirpath, barFolder):
     for filename in os.listdir(dirpath): #add all requests files in the diractory
         if "empty" not in filename and "bar" not in filename:
             allfiles.append(dirpath+"/"+filename)
-    createDictFromAllFiles(dict, allfiles)
+    createDictFromAllFiles(allfiles)
     saveDictToFile(barFolder)
 
 
