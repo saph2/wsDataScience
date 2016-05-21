@@ -104,7 +104,7 @@ def drawBar():
 def updateTopLabel(val):
     if(val>2):
         bgColor, message, fontColor = BG_LABEL_RED, TEXT_RED_REQ, 'white'
-    elif(val>0 and val<=2):
+    elif(val>=0 and val<=2):
         bgColor, message, fontColor = BG_LABEL_GREEN, TEXT_GREEN_REQ, COLOR_LABEL_DEFAULT
     else:# val < 0 means not a valid input
         bgColor, message, fontColor = BG_LABEL_DEFAULT, 'invalid. ' + TEXT_TOP_LABEL_DEFAULT, COLOR_LABEL_DEFAULT
@@ -128,7 +128,7 @@ def validateRequest(val):
 def OnPressEnter(self):
     val = entryVariable.get()
     ret = validateRequest(val)
-    if(ret > 0):
+    if(ret >= 0):
         # remove the first element and ad this one
         durations.append(ret)
         if(len(durations) > MAX_NUM_OF_BARS):
@@ -190,6 +190,7 @@ labelBGColor = StringVar()
 labelBGColor.set(BG_LABEL_DEFAULT)
 topLabel = Label(app, textvariable=labelText, anchor="w", bd=4, fg=COLOR_LABEL_DEFAULT, bg=BG_LABEL_DEFAULT, font=TEXT_FONT, relief=GROOVE)
 topLabel.grid(column=0, row=1, rowspan=2, columnspan=2, sticky='EW')
+
 # TODO change this to something more meaningful
 labelText.set(TEXT_TOP_LABEL_DEFAULT)
 
@@ -205,8 +206,6 @@ canvas.grid(column=0, columnspan=2, sticky='NSEW')
 
 drawBar()
 # ------------ end canvas -----------
-
-
 
 # ------------ bottom statistics -----------
 
