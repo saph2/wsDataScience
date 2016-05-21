@@ -162,13 +162,13 @@ class GUI_APP(Tk):
         # self.showBar(self)
 
     # this method will be executed when 'Enter' is pressed in the entry field
-    def OnPressEnter(self):
-        self.OnButtonClick()
-        # self.labelText.set(self.entryVariable.get() + " (You pressed enter !)")
-        #
-        # # auto select the text field
-        # self.entryField.focus_set()
-        # self.entryField.selection_range(0, END)
+    def OnPressEnter(self,event):
+        # self.OnButtonClick()
+        self.labelText.set(self.entryVariable.get() + " (You pressed enter !)")
+
+        # auto select the text field
+        self.entryField.focus_set()
+        self.entryField.selection_range(0, END)
 
 
     def OnButtonClick2(self):
