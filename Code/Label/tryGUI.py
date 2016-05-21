@@ -8,19 +8,25 @@ import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
+
+# ----- requests and durations --------
+requests = ["req1", "req2", "req3", "req4"]
+durations = []#4, 2, 4, 4,    2, 4, 4, 4,     4, 2]
+
+
 # ------------- constants -------------
 
 # background colors
 BG_APP = 'DarkOrchid4'
 BG_LABEL_DEFAULT = 'plum1'
-BG_LABEL_RED = 'red'
+BG_LABEL_RED = 'red2'
 BG_LABEL_GREEN = 'green'
 BG_CANVAS = 'black'
 
 
 # text colors
-TEXT_COLOR_BUTTON_DEFAULT = 'brown3'
-TEXT_COLOR_LABEL_DEFAULT = 'brown'
+COLOR_BUTTON_DEFAULT = 'brown3'
+COLOR_LABEL_DEFAULT = 'brown'
 
 # window size
 WINDOW_HEIGHT = 800
@@ -31,14 +37,14 @@ STAT_HEIGHT = 200
 TEXT_BUTTON = u"Evaluate request"
 TEXT_ENTRY_DEFAULT = u"Enter request here..."
 TEXT_TOP_LABEL_DEFAULT = 'waiting for a request...'
-APP_TITLE = 'workload prediction app'.upper()
+TEXT_RED_REQ = 'BUSY!! :('
+TEXT_GREEN_REQ = 'ALL GOOD :)'
+
 
 #other consts
 TEXT_FONT = 'Helvetica'
-BAR_NAME_LOCATION = 520
-
-colors = ['red', 'green']
-
+APP_TITLE = 'workload prediction app'.upper()
+MAX_NUM_OF_BARS = 10
 
 # canvas sizes
 
@@ -54,72 +60,34 @@ x_stretch = 40
 # width of a bar
 x_width = 40
 
-# gap between left canvas edge and y axis
-x_gap = 20
+CANVAS_WIDTH = WINDOW_WIDTH
 
+# gap between left canvas edge and y axis
+x_gap = CANVAS_WIDTH / 2
+
+CANVAS_HEIGHT = WINDOW_HEIGHT - y_gap - 200
+
+BAR_NAME_LOCATION = CANVAS_HEIGHT - 80
+# total_width_of_bars = len(durations)* bar_width + len(durations)-1)*dist_betweenBars
+# (y_gap = canvas_width - total_width_of_bars) / 2
+
+def calculateX_GAP():
+    total_width_of_bars = len(durations) * x_width + (len(durations) - 1)*x_stretch
+    return (CANVAS_WIDTH - total_width_of_bars) / 2
 
 def OnButtonClick():
     OnPressEnter(None)
-    # labelText.set(entryVariable.get() + " (You clicked the button)")
-    #
-    # # auto select the text field
-    # entryField.focus_set()
-    # entryField.selection_range(0, END)
-#
-#     canvasWidth = 800
-#     canvasHeight = 600
-#
-#     # highest y = max_data_value * y_stretch
-#     y_stretch = 60
-#
-#     # gap between lower canvas edge and x axis
-#     y_gap = 100
-#
-#     # distance between bars
-#     x_stretch = 40
-#
-#     # width of a bar
-#     x_width = 40
-#
-#     # gap between left canvas edge and y axis
-#     x_gap = 20  # c_width/2 - (len(durations)/2)*x_stretch
-#     durations = [4, 2, 4, 4,    2, 4, 4, 4,     4, 2]
-#
-#     for x, y in enumerate(durations):
-#         # x is the location of the bar along the x-axis
-#         # y is the height of the bar at location x
-#         print 'x = ' + str(x) + '; y = ' + str(y)
-#
-#         # calculate reactangle coordinates (integers) for each bar
-#         x0 = x * x_stretch + x * x_width + x_gap
-#         y0 = canvasHeight - (y * y_stretch + y_gap)
-#         x1 = x * x_stretch + x * x_width + x_width + x_gap
-#         y1 = canvasHeight - y_gap
-#
-#         # draw the bar
-#         if (y > 2):
-#             self.canvas.create_rectangle(x0, y0, x1, y1, fill=colors[1])
-#         else:
-#             self.canvas.create_rectangle(x0, y0, x1, y1, fill=colors[0])
-#         # put the y value above each bar
-#         self.canvas.create_text(x0 + 2, y0, anchor=SW, text='req' + str(x + 1), font=TEXT_FONT, fill='white')
-#
-#
-#         # self.showBar(self)
-#
-# # this method will be executed when 'Enter' is pressed in the entry field
-
 
 def drawBar():
     for x, y in enumerate(durations):
         # x is the location of the bar along the x-axis
         # y is the height of the bar at location x
-
+        x_gap = calculateX_GAP()
         # calculate rectangle coordinates (integers) for each bar
         x0 = x * x_stretch + x * x_width + x_gap
-        y0 = canvasHeight - (y * y_stretch + y_gap)
+        y0 = CANVAS_HEIGHT - (y * y_stretch + y_gap)
         x1 = x * x_stretch + x * x_width + x_width + x_gap
-        y1 = canvasHeight - y_gap
+        y1 = CANVAS_HEIGHT - y_gap
 
         # draw the bar
         if (y > 2):
@@ -134,19 +102,16 @@ def drawBar():
         canvas.create_text(x0 + 2, BAR_NAME_LOCATION, anchor=SW, text='req' + str(x + 1), font=TEXT_FONT, fill='white')
 
 def updateTopLabel(val):
-    # bgColor = BG_LABEL_RED if val > 2 else BG_LABEL_GREEN
-    # message = 'BUSY!!' if val > 2 else 'ALL GOOD :)'
-    # fontColor =
     if(val>2):
-        bgColor, message, fontColor = BG_LABEL_RED, 'BUSY!!', 'white'
+        bgColor, message, fontColor = BG_LABEL_RED, TEXT_RED_REQ, 'white'
     elif(val>0 and val<=2):
-        bgColor, message, fontColor = BG_LABEL_GREEN, 'ALL GOOD :)', TEXT_COLOR_LABEL_DEFAULT
+        bgColor, message, fontColor = BG_LABEL_GREEN, TEXT_GREEN_REQ, COLOR_LABEL_DEFAULT
     else:# val < 0 means not a valid input
-        bgColor, message, fontColor = BG_LABEL_DEFAULT, TEXT_TOP_LABEL_DEFAULT, TEXT_COLOR_LABEL_DEFAULT
+        bgColor, message, fontColor = BG_LABEL_DEFAULT, 'invalid. ' + TEXT_TOP_LABEL_DEFAULT, COLOR_LABEL_DEFAULT
 
     topLabel = Label(app, textvariable=labelText, anchor="w", bd=4, fg=fontColor, bg=bgColor, font=TEXT_FONT, relief=GROOVE)
     topLabel.grid(column=0, row=1, rowspan=2, columnspan=2, sticky='EW')
-    labelText.set(message)
+    labelText.set('request \'' + str(val) + '\' is ' + message)
 
 # TODO mising code
 # this func checks a request that a user entered and if it's a legal request returns it's value, otherwise returns -1
@@ -166,7 +131,8 @@ def OnPressEnter(self):
     if(ret > 0):
         # remove the first element and ad this one
         durations.append(ret)
-        durations.pop(0)
+        if(len(durations) > MAX_NUM_OF_BARS):
+            durations.pop(0)
 
         labelText.set("")
 
@@ -215,14 +181,14 @@ entryVariable.set(TEXT_ENTRY_DEFAULT)
 entryField.bind("<Return>", OnPressEnter)
 
 # add button
-button = Button(master=app, text=TEXT_BUTTON, command=OnButtonClick, font=TEXT_FONT, bg=TEXT_COLOR_BUTTON_DEFAULT)
+button = Button(master=app, text=TEXT_BUTTON, command=OnButtonClick, font=TEXT_FONT, bg=COLOR_BUTTON_DEFAULT)
 button.grid(column=1, row=0)
 
 # add text label
 labelText = StringVar()
 labelBGColor = StringVar()
 labelBGColor.set(BG_LABEL_DEFAULT)
-topLabel = Label(app, textvariable=labelText, anchor="w", bd=4, fg=TEXT_COLOR_LABEL_DEFAULT, bg=BG_LABEL_DEFAULT, font=TEXT_FONT, relief=GROOVE)
+topLabel = Label(app, textvariable=labelText, anchor="w", bd=4, fg=COLOR_LABEL_DEFAULT, bg=BG_LABEL_DEFAULT, font=TEXT_FONT, relief=GROOVE)
 topLabel.grid(column=0, row=1, rowspan=2, columnspan=2, sticky='EW')
 # TODO change this to something more meaningful
 labelText.set(TEXT_TOP_LABEL_DEFAULT)
@@ -230,13 +196,11 @@ labelText.set(TEXT_TOP_LABEL_DEFAULT)
 
 # ---------------- canvas ----------------------
 
-requests = ["req1", "req2", "req3", "req4"]
-durations = [4, 2, 4, 4,    2, 4, 4, 4,     4, 2]
 
-canvasWidth = 800
-canvasHeight = 600
+
+
 # add canvas that will hold the bar chart
-canvas = Canvas(app, bg=BG_CANVAS, height=canvasHeight, width=canvasWidth)
+canvas = Canvas(app, bg=BG_CANVAS, height=CANVAS_HEIGHT, width=CANVAS_WIDTH)
 canvas.grid(column=0, columnspan=2, sticky='NSEW')
 
 drawBar()
