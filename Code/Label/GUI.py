@@ -159,7 +159,46 @@ class GUI_APP(Tk):
         self.entryField.focus_set()
         self.entryField.selection_range(0, END)
 
-        # self.showBar(self)
+        canvasWidth = 800
+        canvasHeight = 600
+
+        # highest y = max_data_value * y_stretch
+        y_stretch = 60
+
+        # gap between lower canvas edge and x axis
+        y_gap = 100
+
+        # distance between bars
+        x_stretch = 40
+
+        # width of a bar
+        x_width = 40
+
+        # gap between left canvas edge and y axis
+        x_gap = 20  # c_width/2 - (len(durations)/2)*x_stretch
+        durations = [4, 2, 4, 4,    2, 4, 4, 4,     4, 2]
+
+        for x, y in enumerate(durations):
+            # x is the location of the bar along the x-axis
+            # y is the height of the bar at location x
+            print 'x = ' + str(x) + '; y = ' + str(y)
+
+            # calculate reactangle coordinates (integers) for each bar
+            x0 = x * x_stretch + x * x_width + x_gap
+            y0 = canvasHeight - (y * y_stretch + y_gap)
+            x1 = x * x_stretch + x * x_width + x_width + x_gap
+            y1 = canvasHeight - y_gap
+
+            # draw the bar
+            if (y > 2):
+                self.canvas.create_rectangle(x0, y0, x1, y1, fill=colors[1])
+            else:
+                self.canvas.create_rectangle(x0, y0, x1, y1, fill=colors[0])
+            # put the y value above each bar
+            self.canvas.create_text(x0 + 2, y0, anchor=SW, text='req' + str(x + 1), font=TEXT_FONT, fill='white')
+
+
+            # self.showBar(self)
 
     # this method will be executed when 'Enter' is pressed in the entry field
     def OnPressEnter(self,event):
