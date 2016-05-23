@@ -25,18 +25,36 @@ def move_data_to_one_folder(dataFolder, rawdatafolder):
 # the rest to TestData.
 # this way they won't have an affect on feature selection.
 def split_files_to_test_and_train_dir(rawdataDirPath, trainDirPath, validationDirPath):
-    for filename in os.listdir(rawdataDirPath):
-        prob = random.random()
-        if prob < 0.8 and "empty" not in filename:
-            filePath = rawdataDirPath + "/" + filename
-            destPath = trainDirPath + "/" + filename
-            shutil.move(filePath, destPath)
-
+    countFiles=0
     for filename in os.listdir(rawdataDirPath):
         if "empty" not in filename:
-            filePath = rawdataDirPath + "/" + filename
-            destPath = validationDirPath + "/" + filename
-            shutil.move(filePath, destPath)
+            countFiles+=1
+
+    if countFiles==0 or countFiles==1:
+        print("Need 2 or more files in RawData dir\n")
+        exit(0)
+    else:
+        trainSize=round(0.8*countFiles)
+        if trainSize==countFiles:
+            trainSize-=1
+
+        count=0
+        while count!=trainSize:
+            for filename in os.listdir(rawdataDirPath):
+                prob = random.random()
+                if prob < 0.8 and "empty" not in filename:
+                    filePath = rawdataDirPath + "/" + filename
+                    destPath = trainDirPath + "/" + filename
+                    shutil.move(filePath, destPath)
+                    count+=1
+                if trainSize==count:
+                    break
+
+        for filename in os.listdir(rawdataDirPath):
+            if "empty" not in filename:
+                filePath = rawdataDirPath + "/" + filename
+                destPath = validationDirPath + "/" + filename
+                shutil.move(filePath, destPath)
 
 
 # remove files from validation and train directories to rawData.
@@ -64,10 +82,10 @@ def delete_files_from_dir(dirPath):
 # removes all files that were added during the run
 def remove_all_files_from_all_folders():
 
-    delete_files_from_dir("Train/TrainLabeledData")
-    delete_files_from_dir("Train/TrainRawData")
-    delete_files_from_dir("Train/TrainVectors")
+    delete_files_from_dir("Data/Train/TrainLabeledData")
+    delete_files_from_dir("Data/Train/TrainRawData")
+    delete_files_from_dir("Data/Train/TrainVectors")
 
-    delete_files_from_dir("Validation/ValidationLabeledData")
-    delete_files_from_dir("Validation/ValidationRawData")
-    delete_files_from_dir("Validation/ValidationVectors")
+    delete_files_from_dir("Data/Validation/ValidationLabeledData")
+    delete_files_from_dir("Data/Validation/ValidationRawData")
+    delete_files_from_dir("Data/Validation/ValidationVectors")

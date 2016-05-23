@@ -79,7 +79,7 @@ def getBusyPerDict(dictName,numberOfClasses):
         for i in range (1,numberOfClasses):
             onlyBusy+=dictName[key][i]*i
         total+=onlyBusy
-        busy = float(onlyBusy / total)
+        busy = (float(onlyBusy) / total)
         tempDict.update({key: busy})
     return tempDict
 
