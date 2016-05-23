@@ -3,45 +3,13 @@
 
 # In[37]:
 
-import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import linear_model
-from sklearn import preprocessing
 import random
-import os
 from sklearn.externals import joblib
-
+import common_classify
 
 # In[38]:
-
-# read vectors
-def read_vectors(vec_dir_path):
-    filtered_data = list()
-    for filename in os.listdir(vec_dir_path):
-        if "vectors" in filename:
-            filepath = vec_dir_path + "/" + filename
-            # convert the file to array of objects
-            data = np.array(np.genfromtxt(filepath, delimiter=',', autostrip=True))
-            filtered_data.append(data)
-    filtered_data = np.asarray(filtered_data)[0]
-    return filtered_data
-
-
-def scale_and_filter_vectors(filtered_data):
-    # cut headline
-    sz = filtered_data.size
-    filtered_data = filtered_data[1:sz]
-
-    # save labels
-    labels = filtered_data[:, 5]
-    for i in range(0, len(labels)):
-        labels[i] = int(labels[i])
-
-    # cut labels
-    filtered_data = filtered_data[:, :-1]
-
-    return filtered_data, labels
-
 
 def build_classifier(train_X, train_Y):
     regr = linear_model.LinearRegression()
@@ -111,10 +79,10 @@ def cross_val_model(scaled_filtered_data, labels, regr_dir_path, numberOfClasses
 # build the classifier
 def build_train_model(vec_dir_path, regr_dir_path, numberOfClasses):
     # read the vectors from all data files
-    data_vectors = read_vectors(vec_dir_path)
+    data_vectors = common_classify.read_vectors(vec_dir_path)
 
     # return vectors in range [0,1] and labels
-    (vectors, labels) = scale_and_filter_vectors(data_vectors)
+    (vectors, labels) = common_classify.scale_and_filter_vectors_without_negative(data_vectors)
 
     # cross val the train set
     cross_val_model(vectors, labels, regr_dir_path, numberOfClasses)
@@ -122,8 +90,8 @@ def build_train_model(vec_dir_path, regr_dir_path, numberOfClasses):
 
 # classify validation vectors
 def predict_validation_set(validation_dir_path, regr_dir_path):
-    test_X = read_vectors(validation_dir_path)
-    (test_X, test_Y) = scale_and_filter_vectors(test_X)
+    test_X = common_classify.read_vectors(validation_dir_path)
+    (test_X, test_Y) = common_classify.scale_and_filter_vectors_without_negative(test_X)
 
     # load classifier
     regr = joblib.load(regr_dir_path+"/"+'linearRegression_model.pkl')

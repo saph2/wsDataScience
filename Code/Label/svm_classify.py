@@ -2,40 +2,10 @@
 
 
 import numpy as np
-from sklearn import preprocessing
 from sklearn import svm
 import random
-import os
 from sklearn.externals import joblib
-
-# read vectors
-def read_vectors(vec_dir_path):
-    filtered_data = list()
-    for filename in os.listdir(vec_dir_path):
-        if "vectors" in filename:
-            filepath = vec_dir_path + "/" + filename
-            # convert the file to array of objects
-            data = np.array(np.genfromtxt(filepath, delimiter=',', autostrip=True))
-            filtered_data.append(data)
-    filtered_data = np.asarray(filtered_data)[0]
-    return filtered_data
-
-
-def scale_and_filter_vectors(filtered_data):
-    # cut headline
-    sz = filtered_data.size
-    filtered_data = filtered_data[1:sz]
-
-    # save labels
-    labels = filtered_data[:, 5]
-    for i in range(0, len(labels)):
-        labels[i] = int(labels[i])
-
-    # cut labels
-    scaled_filtered_data = preprocessing.scale(filtered_data)
-    scaled_filtered_data = scaled_filtered_data[:, :-1]
-
-    return scaled_filtered_data, labels
+import common_classify
 
 
 def build_classifier(train_samples, train_out,svmModel):
@@ -90,10 +60,10 @@ def cross_val_model(scaled_filtered_data, labels, svmModel_dir_path, svmModel, n
 # build the SVM classifier
 def build_train_model(vec_dir_path,svmModel_dir_path,svmModel,numberOfClasses):
     # read the vectors from all data files
-    data_vectors = read_vectors(vec_dir_path)
+    data_vectors = common_classify.read_vectors(vec_dir_path)
 
     # return vectors in range [0,1] and labels
-    (vectors, labels) = scale_and_filter_vectors(data_vectors)
+    (vectors, labels) = common_classify.scale_and_filter_vectors_with_negative(data_vectors)
 
     # cross val the train set
     cross_val_model(vectors, labels,svmModel_dir_path,svmModel,numberOfClasses)
@@ -101,8 +71,8 @@ def build_train_model(vec_dir_path,svmModel_dir_path,svmModel,numberOfClasses):
 
 # classify validation vectors
 def predict_validation_set(validation_dir_path, svmModel_dir_path):
-    validation_vectors = read_vectors(validation_dir_path)
-    (validation_vectors, validation_labels) = scale_and_filter_vectors(validation_vectors)
+    validation_vectors = common_classify.read_vectors(validation_dir_path)
+    (validation_vectors, validation_labels) = common_classify.scale_and_filter_vectors_with_negative(validation_vectors)
 
     # load classifier
     clf = joblib.load(svmModel_dir_path+"/"+'svm_model.pkl')

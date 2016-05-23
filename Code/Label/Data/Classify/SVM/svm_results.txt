@@ -2,11 +2,11 @@ SVM model: kernel=linear, C=1, d=1
 Number of classes=3
 
  -- cross val prediction --
-Accuracy                                    : 91.4461538462 %
-Number of support vectors for positive class: 720
-Number of support vectors for negative class: 198
+Accuracy                                    : 91.6769230769 %
+Number of support vectors for positive class: 707
+Number of support vectors for negative class: 175
 
  -- validation prediction -- 
-Accuracy                                    : 83.331 %
-Number of support vectors for positive class: 720
-Number of support vectors for negative class: 198
+Accuracy                                    : 97.06 %
+Number of support vectors for positive class: 707
+Number of support vectors for negative class: 175
