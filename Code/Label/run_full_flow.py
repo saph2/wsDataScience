@@ -29,36 +29,36 @@ useBAYES=True
 try:
     #move all request files from daily folders to one folder.
     # file name is according to the date
-    handel_files.move_data_to_one_folder("DataSplitToDailyFolder", "RawData")
+    handel_files.move_data_to_one_folder("Data/DataSplitToDailyFolder", "Data/RawData")
     print "finished move_data_to_one_folder"
 
     # clean the data from 'comma'
-    clean_data.cleanFilesInDir("RawData")
+    clean_data.cleanFilesInDir("Data/RawData")
     print "finished cleanFilesInDir"
 
     # split raw data to train and validation
-    handel_files.split_files_to_test_and_train_dir("RawData", "Train/TrainRawData", "Validation/ValidationRawData")
+    handel_files.split_files_to_test_and_train_dir("Data/RawData", "Data/Train/TrainRawData", "Data/Validation/ValidationRawData")
     print "finished split_files_to_test_and_train_dir"
 
     # build the dictionary which contains for each "host name"+"url" the min duration
-    build_duration_bar.buildBar("Train/TrainRawData", "DurationBar")
+    build_duration_bar.buildBar("Data/Train/TrainRawData", "Data/DurationBar")
     print "finished buildBar"
 
     # label the data
-    label_data.labelAllfiles("Train/TrainRawData", "Train/TrainLabeledData", "DurationBar",numberOfClasses)
-    label_data.labelAllfiles("Validation/ValidationRawData", "Validation/ValidationLabeledData", "DurationBar",numberOfClasses)
+    label_data.labelAllfiles("Data/Train/TrainRawData", "Data/Train/TrainLabeledData", "Data/DurationBar",numberOfClasses)
+    label_data.labelAllfiles("Data/Validation/ValidationRawData", "Data/Validation/ValidationLabeledData", "Data/DurationBar",numberOfClasses)
     # print "t0 = " + str(label_data.t0) + " t1 = " + str(label_data.t1)
     print "finished labelAllfiles"
 
 
     # scaleFeatures: create the files of features ordered by workloads and numbered in folder Features"
-    scale_features.buildFeaturesFiles("Train/TrainLabeledData", "Features", featuresOfInterest,numberOfClasses)
+    scale_features.buildFeaturesFiles("Data/Train/TrainLabeledData", "Data/Features", featuresOfInterest,numberOfClasses)
     print "finished buildFeaturesFiles"
 
 
     # vectorizes the data
-    vectorize_data.dataToVectors("Features", "Train/TrainLabeledData", "Train/TrainVectors", True)
-    vectorize_data.dataToVectors("Features", "Validation/ValidationLabeledData", "Validation/ValidationVectors", True)
+    vectorize_data.dataToVectors("Data/Features", "Data/Train/TrainLabeledData", "Data/Train/TrainVectors", True)
+    vectorize_data.dataToVectors("Data/Features", "Data/Validation/ValidationLabeledData", "Data/Validation/ValidationVectors", True)
     print "finished dataToVectors"
 
     # SVM ###########################################################
@@ -68,12 +68,12 @@ try:
 
         # build svm model and run cross val on our labeled vectors, export classifier
         print "\nstarting build_train_model"
-        svm_classify.build_train_model("Train/TrainVectors","Classify/SVM" ,svmModel,numberOfClasses)
+        svm_classify.build_train_model("Data/Train/TrainVectors","Data/Classify/SVM" ,svmModel,numberOfClasses)
         print "\nfinished build_train_model"
 
         #  load classifier and execute prediction
         print "\nstarting predict_validation_set"
-        svm_classify.predict_validation_set("Validation/ValidationVectors", "Classify/SVM")
+        svm_classify.predict_validation_set("Data/Validation/ValidationVectors", "Data/Classify/SVM")
         print "\nfinished predict_validation_set"
 
     # Linear Regression #####################################################################
@@ -83,12 +83,12 @@ try:
 
         # build linear regression model and run cross val on our labeled vectors, export classifier
         print "\nstarting build_train_model"
-        linear_regression_classify.build_train_model("Train/TrainVectors", "Classify/LinearRegression",numberOfClasses)
+        linear_regression_classify.build_train_model("Data/Train/TrainVectors", "Data/Classify/LinearRegression",numberOfClasses)
         print "\nfinished build_train_model"
 
         #  load classifier and execute prediction
         print "\nstarting predict_validation_set"
-        linear_regression_classify.predict_validation_set("Validation/ValidationVectors", "Classify/LinearRegression")
+        linear_regression_classify.predict_validation_set("Data/Validation/ValidationVectors", "Data/Classify/LinearRegression")
         print "\nfinished predict_validation_set"
 
     # NAIVE BAYES ###########################################################
@@ -97,20 +97,20 @@ try:
 
             # build naive bayes model and run cross val on our labeled vectors, export classifier
             print "\nstarting build_train_model"
-            naive_bayes_classify.build_train_model("Train/TrainVectors","Classify/NaiveBayes" ,numberOfClasses)
+            naive_bayes_classify.build_train_model("Data/Train/TrainVectors","Data/Classify/NaiveBayes" ,numberOfClasses)
             print "\nfinished build_train_model"
 
 
             # load classifier and execute prediction
             print "\nstarting predict_validation_set"
-            naive_bayes_classify.predict_validation_set("Validation/ValidationVectors", "Classify/NaiveBayes")
+            naive_bayes_classify.predict_validation_set("Data/Validation/ValidationVectors", "Data/Classify/NaiveBayes")
             print "\nfinished predict_validation_set"
 
     ######################################################################
 
 finally:
     # return data to rawData dir (when we want to start the procedure from the start)
-    handel_files.return_files_from_train_test_to_rawdata("RawData", "Train/TrainRawData", "Validation/ValidationRawData")
+    handel_files.return_files_from_train_test_to_rawdata("Data/RawData", "Data/Train/TrainRawData", "Data/Validation/ValidationRawData")
     print "\nfinished remove_files_to_rawdata"
 
     # finally:
