@@ -2,7 +2,10 @@
 # -*- coding: iso-8859-1 -*-
 
 from Tkinter import *
-import matplotlib.pyplot as plt; plt.rcdefaults()
+import matplotlib.pyplot as plt;
+from sklearn.externals import joblib
+
+plt.rcdefaults()
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -15,6 +18,12 @@ durations = []#4, 2, 4, 4,    2, 4, 4, 4,     4, 2]
 
 
 # ------------- constants -------------
+
+# classifier consts
+pathToClassifier = 'Data/Classify/'
+classifierSuffix = '_model.pkl'
+classifierType = 'svm'
+
 
 # background colors
 BG_APP = 'DarkOrchid4'
@@ -101,6 +110,8 @@ def drawBar():
         # if not, use the constant
         canvas.create_text(x0 + 2, BAR_NAME_LOCATION, anchor=SW, text='req' + str(x + 1), font=TEXT_FONT, fill='white')
 
+
+# TODO decide what to write above the bar. currently just 'req' + val
 def updateTopLabel(val):
     if(val>2):
         bgColor, message, fontColor = BG_LABEL_RED, TEXT_RED_REQ, 'white'
@@ -113,24 +124,46 @@ def updateTopLabel(val):
     topLabel.grid(column=0, row=1, rowspan=2, columnspan=2, sticky='EW')
     labelText.set('request \'' + str(val) + '\' is ' + message)
 
+# get the currect middle part of the path to the classifier
+# type = svm/nb/lr
+def getClassifierMiddle(type):
+    classifierMiddle = ''
+    if(type.lower() == 'svm'):
+        classifierMiddle = 'SVM/svm'
+    elif type.lower() == 'nb':
+        classifierMiddle = 'NaiveBayes/naive_bayes'
+    elif type.lower() == 'lr':
+        classifierMiddle = 'LinearRegression/linearRegression'
+    return classifierMiddle
+
+
 # TODO mising code
 # this func checks a request that a user entered and if it's a legal request returns it's value, otherwise returns -1
 # later should be changed to running the classifier
-def validateRequest(val):
-    v = -1
+# vector is a list of numbers divided by a space(' ') of the form -0.49692562 -0.25001743 -0.4923626 -0.98941777 -1.19655191
+def validateRequest(vector):
+    prediction = 0
+    # vector = -0.49692562 -0.25001743 -0.4923626 -0.98941777 -1.19655191
+
+    # convert to float array
+    vector = [float(x) for x in vector.split(' ')]
+    prediction = classifier.predict(vector)
     try:
-        v = int(val)
+        prediction = int(prediction[0])
+        prediction += 2
+        if prediction > 2:
+            prediction += 2
     except:
-        print 'not an INT'
-    return v
+        print 'could not predict this request'
+    return prediction
 
 # this func is executed whenever 'Enter' is pressed
 def OnPressEnter(self):
     val = entryVariable.get()
-    ret = validateRequest(val)
-    if(ret >= 0):
+    requestPredictionVal = validateRequest(val)
+    if(requestPredictionVal >= 0):
         # remove the first element and ad this one
-        durations.append(ret)
+        durations.append(requestPredictionVal)
         if(len(durations) > MAX_NUM_OF_BARS):
             durations.pop(0)
 
@@ -144,7 +177,7 @@ def OnPressEnter(self):
         canvas.delete('all')
         drawBar()
 
-        updateTopLabel(ret)
+        updateTopLabel(requestPredictionVal)
     else:
         labelText.set('\'' + val + '\'' + " is not a valid request. please try again")
 
@@ -168,6 +201,9 @@ app.title(APP_TITLE)
 app.configure(bg=BG_APP)
 app.minsize(WINDOW_WIDTH,WINDOW_HEIGHT)
 app.maxsize(WINDOW_WIDTH,WINDOW_HEIGHT)
+
+# load classifier
+classifier = joblib.load(pathToClassifier + getClassifierMiddle(classifierType) + classifierSuffix)
 
 # self.grid()
 
