@@ -2,9 +2,9 @@ NAIVE BAYES model:
 Number of classes=2
 
  -- cross val prediction --
-Accuracy                                    : 78.9417582418 %
+Accuracy                                    : 73.6065934066 %
 
 
  -- validation prediction -- 
-Accuracy                                    : 69.295 %
+Accuracy                                    : 72.1474546518 %
 
