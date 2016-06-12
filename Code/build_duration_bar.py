@@ -33,7 +33,7 @@ def insertToDict (data,hostplace,urlplace,durplace):
             hostname=line[hostplace]
             urlname=line[urlplace]
             dur=float(line[durplace])
-            urldict={urlname:[dur,1]}
+            urldict={urlname:[dur,1,dur,dur]}
         except:
             print ("index out of bounds in build_duration_bar.py: insertToDict")
             exit(0)
@@ -46,7 +46,9 @@ def insertToDict (data,hostplace,urlplace,durplace):
             else:# update sum and count dur for existing host and url
                 sumdur=allurls[urlname][0]+dur
                 countdur=allurls[urlname][1]+1
-                barDict[hostname].update({urlname:[sumdur,countdur]})  #update min and max duration time
+                mindur=min(dur,allurls[urlname][2])
+                maxdur=max(dur,allurls[urlname][3])
+                barDict[hostname].update({urlname:[sumdur,countdur,mindur,maxdur]})  #update min and max duration time
 
 #fill the dictionary from all the requests files
 def createDictFromAllFiles (allfiles):
@@ -79,12 +81,13 @@ def createDictFromAllFiles (allfiles):
 def saveDictToFile(dirpath):
     barPath=dirpath+"/barFile.csv"
     with open(barPath,'w') as f2:
-        f2.write("Host,URL,sumDuration,countDuration\n")
+        f2.write("Host,URL,avgDuration,minDuration,maxDuration\n")
         for host in barDict:
             hostdict=barDict[host]
             for url in hostdict:
                 dur=hostdict[url]
-                f2.write("%s,%s,%f,%f\n" % (host, url, dur[0], dur[1]))
+                avgdur=float(dur[0])/dur[1]
+                f2.write("%s,%s,%f, %f, %f\n" % (host, url, avgdur,dur[2],dur[3]))
         f2.close()
 
 

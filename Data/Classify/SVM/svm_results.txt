@@ -2,11 +2,11 @@ SVM model: kernel=poly, C=1, d=2
 Number of classes=2
 
  -- cross val prediction --
-Accuracy                                    : 79.5516483516 %
-Number of support vectors for positive class: 2065
-Number of support vectors for negative class: 2021
+Accuracy                                    : 83.8241758242 %
+Number of support vectors for positive class: 1695
+Number of support vectors for negative class: 1680
 
  -- validation prediction -- 
-Accuracy                                    : 78.0406252612 %
-Number of support vectors for positive class: 2065
-Number of support vectors for negative class: 2021
+Accuracy                                    : 85.312 %
+Number of support vectors for positive class: 1695
+Number of support vectors for negative class: 1680

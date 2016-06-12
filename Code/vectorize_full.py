@@ -17,8 +17,8 @@ def run_code(header,featuresOfInterest,numberOfClasses):
     clean_data.cleanFilesInDir(header+"RawData")
     print "finished cleanFilesInDir"
 
-    # split raw data to train and validation
-    handel_files.split_files_to_test_and_train_dir(header + "RawData", header + "Train/TrainRawData", header + "Validation/ValidationRawData")
+    # split raw data to train and test
+    handel_files.split_files_to_test_and_train_dir(header + "RawData", header + "Train/TrainRawData", header + "Test/TestRawData")
     print "finished split_files_to_test_and_train_dir"
 
     # build the dictionary which contains for each "host name"+"url" the min duration
@@ -27,7 +27,7 @@ def run_code(header,featuresOfInterest,numberOfClasses):
 
     # label the data
     label_data.labelAllfiles(header+"Train/TrainRawData", header+"Train/TrainLabeledData", header+"DurationBar",numberOfClasses)
-    label_data.labelAllfiles(header+"Validation/ValidationRawData", header+"Validation/ValidationLabeledData", header+"DurationBar",numberOfClasses)
+    label_data.labelAllfiles(header+"Test/TestRawData", header+"Test/TestLabeledData", header+"DurationBar",numberOfClasses)
     # print "t0 = " + str(label_data.t0) + " t1 = " + str(label_data.t1)
     print "finished labelAllfiles"
 
@@ -39,5 +39,5 @@ def run_code(header,featuresOfInterest,numberOfClasses):
 
     # vectorizes the data
     vectorize_data.dataToVectors(header+"Features", header+"Train/TrainLabeledData", header+"Train/TrainVectors", True)
-    vectorize_data.dataToVectors(header+"Features", header+"Validation/ValidationLabeledData", header+"Validation/ValidationVectors", True)
+    vectorize_data.dataToVectors(header+"Features", header+"Test/TestLabeledData", header+"Test/TestVectors", True)
     print "finished dataToVectors"

@@ -2,17 +2,17 @@ Linear Regression:
 Number of classes=2
 
  -- cross val prediction --
-Coefficients: [  2.26537870e-05   9.07341907e-02   3.90405005e-02  -2.16420287e-04
-  -8.54651049e-03]
+Coefficients: [ -2.85794161e-03   1.07204656e-01   7.65342997e-02   4.22471936e-05
+  -4.34694063e-04]
 Residual sum of squares: 0.00
-Variance score: 0.11
-Success: 78.821978022%
+Variance score: 0.16
+Success: 82.2461538462%
 
 
  -- validation prediction -- 
-Coefficients: [  2.26537870e-05   9.07341907e-02   3.90405005e-02  -2.16420287e-04
-  -8.54651049e-03]
-Residual sum of squares: 0.00
-Variance score: 0.04
-Success: 78.4502215163%
+Coefficients: [ -2.85794161e-03   1.07204656e-01   7.65342997e-02   4.22471936e-05
+  -4.34694063e-04]
+Residual sum of squares: 0.01
+Variance score: -0.04
+Success: 72.045%
 
