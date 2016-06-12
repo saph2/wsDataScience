@@ -207,7 +207,7 @@ def getPredictionForRequest(vectorFromUser):
         # print prediction[0]
         prediction = int(prediction[0])
         # TODO remove this line
-        prediction = random.randint(0,2)
+        # prediction = random.randint(0,2)
         if(prediction == 0):
             prediction = 2
         elif(prediction == 1):
