@@ -7,11 +7,11 @@ def run_code(header,numberOfClasses):
 
     # classify ####################################################################
     useSVM=True
-    svmModel={'kernel':'poly','C':1,'d':2,'gamma':2}
+    svmModel={'kernel':'poly','C':1,'d':2,'gamma':'auto'}
 
-    useLinearRegression=True
+    useLinearRegression=False
 
-    useBAYES=True
+    useBAYES=False
 
 
     # SVM ##########################################################################
@@ -25,9 +25,9 @@ def run_code(header,numberOfClasses):
         print "\nfinished build_train_model"
 
         #  load classifier and execute prediction
-        print "\nstarting predict_validation_set"
-        svm_classify.predict_validation_set(header+"Validation/ValidationVectors", header+"Classify/SVM")
-        print "\nfinished predict_validation_set"
+        print "\nstarting predict_test_set"
+        svm_classify.predict_test_set(header + "Test/TestVectors", header + "Classify/SVM", numberOfClasses)
+        print "\nfinished predict_test_set"
 
     # Linear Regression #####################################################################
     if useLinearRegression:
@@ -40,9 +40,9 @@ def run_code(header,numberOfClasses):
         print "\nfinished build_train_model"
 
         #  load classifier and execute prediction
-        print "\nstarting predict_validation_set"
-        linear_regression_classify.predict_validation_set(header+"Validation/ValidationVectors", header+"Classify/LinearRegression")
-        print "\nfinished predict_validation_set"
+        print "\nstarting predict_test_set"
+        linear_regression_classify.predict_test_set(header + "Test/TestVectors", header + "Classify/LinearRegression",numberOfClasses)
+        print "\nfinished predict_test_set"
 
     # NAIVE BAYES ####################################################################
     if useBAYES:
@@ -55,8 +55,8 @@ def run_code(header,numberOfClasses):
 
 
             # load classifier and execute prediction
-            print "\nstarting predict_validation_set"
-            naive_bayes_classify.predict_validation_set(header+"Validation/ValidationVectors", header+"Classify/NaiveBayes")
-            print "\nfinished predict_validation_set"
+            print "\nstarting predict_test_set"
+            naive_bayes_classify.predict_test_set(header + "Test/TestVectors", header + "Classify/NaiveBayes",numberOfClasses)
+            print "\nfinished predict_test_set"
 
     ###################################################################################

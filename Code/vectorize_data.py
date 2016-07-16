@@ -5,7 +5,7 @@
 # this program vectorize the rows of the requests files in the given folder
 # input: name of folder that contains requests files, and output folder for the vectors
 # uses: the files from the "Features" folder
-# output: writes vectors files to the Folders "TrainVectors" or "ValidationVectors" (chosen by input)
+# output: writes vectors files to the Folders "TrainVectors" or "TestVectors" (chosen by input)
 
 
 

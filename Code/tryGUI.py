@@ -14,81 +14,83 @@ from matplotlib.figure import Figure
 
 # ----- requests and durations --------
 requests = ["req1", "req2", "req3", "req4"]
-durations = []#4, 2, 4, 4,    2, 4, 4, 4,     4, 2]
-
+currDurations = []#4, 2, 4, 4,    2, 4, 4, 4,     4, 2]
+allDurations = []
 
 # ------------- constants -------------
 
 # classifier consts
-pathToClassifier = 'Data/Classify/'
+pathToClassifier = '../Data/Classify/'
 classifierSuffix = '_model.pkl'
 classifierType = 'svm'
 
 
 # background colors
-BG_APP = 'DarkOrchid4'
-BG_LABEL_DEFAULT = 'plum1'
+BG_APP = 'dim gray'
+BG_LABEL_DEFAULT = 'snow2'
 BG_LABEL_RED = 'red2'
 BG_LABEL_GREEN = 'green'
+BG_LABEL_ORANGE = 'orange'
 BG_CANVAS = 'black'
+BG_BUTTON_DEFAULT = 'brown3'
 
 
 # text colors
-COLOR_BUTTON_DEFAULT = 'brown3'
 COLOR_LABEL_DEFAULT = 'brown'
+COLOR_BUTTON_TEXT = 'white'
+COLOR_STATS_TEXT = 'black'
 
 # window size
-WINDOW_HEIGHT = 800
+WINDOW_HEIGHT = 600
 WINDOW_WIDTH = 800
-STAT_HEIGHT = 200
+STAT_HEIGHT = 50
+
+#other consts
+FONT_DEFAULT = 'Helvetica'
+FONT_BUTTON = 'Helvetica 12 bold'
+FONT_STATS = 'Helvetica 12 bold'
+APP_TITLE = 'workload prediction app'.upper()
+MAX_NUM_OF_BARS = 10
 
 # text fields
 TEXT_BUTTON = u"Evaluate request"
 TEXT_ENTRY_DEFAULT = u"Enter request here..."
 TEXT_TOP_LABEL_DEFAULT = 'waiting for a request...'
-TEXT_RED_REQ = 'BUSY!! :('
-TEXT_GREEN_REQ = 'ALL GOOD :)'
-
-
-#other consts
-TEXT_FONT = 'Helvetica'
-APP_TITLE = 'workload prediction app'.upper()
-MAX_NUM_OF_BARS = 10
+TEXT_RED_REQ = 'BUSY!! :-('
+TEXT_ORANGE_REQ = 'MEDIUM LOAD :-|'
+TEXT_GREEN_REQ = 'ALL GOOD :-)'
+TEXT_LEFT_STATS_DEFAULT = 'avg of all requests will be here'
+TEXT_RIGHT_STATS_DEFAULT = 'avg of last ' + str(MAX_NUM_OF_BARS) + ' requests will be here'
+TEXT_LAST10_REQS = 'last 10 avg is '
+TEXT_ALL_REQS = 'all avg is '
 
 # canvas sizes
 
 # highest y = max_data_value * y_stretch
 y_stretch = 60
-
 # gap between lower canvas edge and x axis
 y_gap = 100
-
 # distance between bars
 x_stretch = 40
-
 # width of a bar
 x_width = 40
-
 CANVAS_WIDTH = WINDOW_WIDTH
-
 # gap between left canvas edge and y axis
 x_gap = CANVAS_WIDTH / 2
-
-CANVAS_HEIGHT = WINDOW_HEIGHT - y_gap - 200
-
+# height of the stats bar
+stats_height_gap = 30
+CANVAS_HEIGHT = WINDOW_HEIGHT - y_gap - stats_height_gap
 BAR_NAME_LOCATION = CANVAS_HEIGHT - 80
-# total_width_of_bars = len(durations)* bar_width + len(durations)-1)*dist_betweenBars
-# (y_gap = canvas_width - total_width_of_bars) / 2
 
 def calculateX_GAP():
-    total_width_of_bars = len(durations) * x_width + (len(durations) - 1)*x_stretch
+    total_width_of_bars = len(currDurations) * x_width + (len(currDurations) - 1) * x_stretch
     return (CANVAS_WIDTH - total_width_of_bars) / 2
 
 def OnButtonClick():
     OnPressEnter(None)
 
 def drawBar():
-    for x, y in enumerate(durations):
+    for x, y in enumerate(currDurations):
         # x is the location of the bar along the x-axis
         # y is the height of the bar at location x
         x_gap = calculateX_GAP()
@@ -99,8 +101,10 @@ def drawBar():
         y1 = CANVAS_HEIGHT - y_gap
 
         # draw the bar
-        if (y > 2):
+        if (y > 4):
             canvas.create_rectangle(x0, y0, x1, y1, fill=BG_LABEL_RED)
+        elif (y > 2):
+            canvas.create_rectangle(x0, y0, x1, y1, fill=BG_LABEL_ORANGE)
         else:
             canvas.create_rectangle(x0, y0, x1, y1, fill=BG_LABEL_GREEN)
 
@@ -108,23 +112,29 @@ def drawBar():
 
         # if we want to print the name of the request at the top of the bar then the second argument should be y0
         # if not, use the constant
-        canvas.create_text(x0 + 2, BAR_NAME_LOCATION, anchor=SW, text='req' + str(x + 1), font=TEXT_FONT, fill='white')
+        canvas.create_text(x0 + 2, BAR_NAME_LOCATION, anchor=SW, text='req' + str(x + 1), font=FONT_DEFAULT, fill='white')
 
 
 # TODO decide what to write above the bar. currently just 'req' + val
 def updateTopLabel(val):
-    if(val>2):
+    if(val>4):
         bgColor, message, fontColor = BG_LABEL_RED, TEXT_RED_REQ, 'white'
+        val = '\'' + str(val) + '\' '
+    elif(val>2 and val <=4):
+        bgColor, message, fontColor = BG_LABEL_ORANGE, TEXT_ORANGE_REQ, 'white'
+        val = '\'' + str(val) + '\' '
     elif(val>=0 and val<=2):
         bgColor, message, fontColor = BG_LABEL_GREEN, TEXT_GREEN_REQ, COLOR_LABEL_DEFAULT
+        val = '\'' + str(val) + '\' '
     else:# val < 0 means not a valid input
         bgColor, message, fontColor = BG_LABEL_DEFAULT, 'invalid. ' + TEXT_TOP_LABEL_DEFAULT, COLOR_LABEL_DEFAULT
+        val = ''
 
-    topLabel = Label(app, textvariable=labelText, anchor="w", bd=4, fg=fontColor, bg=bgColor, font=TEXT_FONT, relief=GROOVE)
+    topLabel = Label(app, textvariable=labelText, anchor="center", bd=4, fg=fontColor, bg=bgColor, font=FONT_DEFAULT, relief=GROOVE)
     topLabel.grid(column=0, row=1, rowspan=2, columnspan=2, sticky='EW')
-    labelText.set('request \'' + str(val) + '\' is ' + message)
+    labelText.set('request ' + val + 'is ' + message)
 
-# get the currect middle part of the path to the classifier
+# get the current middle part of the path to the classifier
 # type = svm/nb/lr
 def getClassifierMiddle(type):
     classifierMiddle = ''
@@ -141,44 +151,70 @@ def getClassifierMiddle(type):
 # this func checks a request that a user entered and if it's a legal request returns it's value, otherwise returns -1
 # later should be changed to running the classifier
 # vector is a list of numbers divided by a space(' ') of the form -0.49692562 -0.25001743 -0.4923626 -0.98941777 -1.19655191
-def validateRequest(vector):
+def getPredictionForRequest(vector):
     prediction = 0
     # vector = -0.49692562 -0.25001743 -0.4923626 -0.98941777 -1.19655191
 
     # convert to float array
-    vector = [float(x) for x in vector.split(' ')]
+    vector = [float(x) for x in vector.split()]
+    # make the array to be 2D array
+    vector = np.array(vector).reshape((1, -1))
+    # get prediction
     prediction = classifier.predict(vector)
     try:
+        print prediction[0]
         prediction = int(prediction[0])
-        prediction += 2
-        if prediction > 2:
-            prediction += 2
+        if(prediction == 0):
+            prediction = 2
+        elif(prediction == 1):
+            prediction = 4
+        elif(prediction == 2):
+            prediction = 6
+        # prediction += 2
+        # if prediction > 2:
+        #     prediction += 2
+        # print 'predicton = ' + str(prediction)
+        # prediction = 4
+
     except:
         print 'could not predict this request'
     return prediction
 
 # this func is executed whenever 'Enter' is pressed
+def updateStatsLabel():
+    last10Avg = TEXT_LAST10_REQS + str(float(sum(currDurations)) / max(len(currDurations), 1))
+    allAvg = TEXT_ALL_REQS + str(float(sum(allDurations)) / max(len(allDurations), 1))
+    statsLeftText.set(allAvg)
+    statsRightText.set(last10Avg)
+
 def OnPressEnter(self):
-    val = entryVariable.get()
-    requestPredictionVal = validateRequest(val)
-    if(requestPredictionVal >= 0):
-        # remove the first element and ad this one
-        durations.append(requestPredictionVal)
-        if(len(durations) > MAX_NUM_OF_BARS):
-            durations.pop(0)
+    try:
+        val = entryVariable.get()
+        requestPredictionVal = getPredictionForRequest(val)
+        if(requestPredictionVal >= 0):
+            # add request to list of all reqs
+            allDurations.append(requestPredictionVal)
 
-        labelText.set("")
+            # remove the first element and add this one to the list of the last 10 reqs
+            currDurations.append(requestPredictionVal)
+            if(len(currDurations) > MAX_NUM_OF_BARS):
+                currDurations.pop(0)
 
-        # auto select the text field
-        entryField.focus_set()
-        entryField.selection_range(0, END)
+            labelText.set("")
 
-        # redraw canvas
-        canvas.delete('all')
-        drawBar()
+            # auto select the text field
+            entryField.focus_set()
+            entryField.selection_range(0, END)
 
-        updateTopLabel(requestPredictionVal)
-    else:
+            # redraw canvas
+            canvas.delete('all')
+            drawBar()
+
+            updateTopLabel(requestPredictionVal)
+            updateStatsLabel()
+        else:
+            print 'the prediction value(%d) is negative' % requestPredictionVal
+    except:
         labelText.set('\'' + val + '\'' + " is not a valid request. please try again")
 
         # auto select the text field
@@ -186,16 +222,9 @@ def OnPressEnter(self):
         entryField.selection_range(0, END)
         updateTopLabel(-1)
 
-    # canvas = Canvas(app, bg=BG_CANVAS, height=canvasHeight, width=canvasWidth)
-    # canvas.grid(column=0, columnspan=2, sticky='NSEW')
-    # canvas.setvar(bg='white')
-
-#
-#
 
 
 # initialize the window
-
 app = Tk()
 app.title(APP_TITLE)
 app.configure(bg=BG_APP)
@@ -205,11 +234,9 @@ app.maxsize(WINDOW_WIDTH,WINDOW_HEIGHT)
 # load classifier
 classifier = joblib.load(pathToClassifier + getClassifierMiddle(classifierType) + classifierSuffix)
 
-# self.grid()
-
 # add text entry field
 entryVariable = StringVar()
-entryField = Entry(master=app, textvariable=entryVariable)
+entryField = Entry(master=app, textvariable=entryVariable, bd=4, relief=GROOVE, font=14)
 entryField.grid(column=0, row=0, sticky='EW')
 entryVariable.set(TEXT_ENTRY_DEFAULT)
 
@@ -217,14 +244,15 @@ entryVariable.set(TEXT_ENTRY_DEFAULT)
 entryField.bind("<Return>", OnPressEnter)
 
 # add button
-button = Button(master=app, text=TEXT_BUTTON, command=OnButtonClick, font=TEXT_FONT, bg=COLOR_BUTTON_DEFAULT)
+button = Button(master=app, text=TEXT_BUTTON, command=OnButtonClick, font=FONT_BUTTON, fg=COLOR_BUTTON_TEXT, bg=BG_BUTTON_DEFAULT, bd=8)
 button.grid(column=1, row=0)
 
 # add text label
 labelText = StringVar()
 labelBGColor = StringVar()
 labelBGColor.set(BG_LABEL_DEFAULT)
-topLabel = Label(app, textvariable=labelText, anchor="w", bd=4, fg=COLOR_LABEL_DEFAULT, bg=BG_LABEL_DEFAULT, font=TEXT_FONT, relief=GROOVE)
+topLabel = Label(app, textvariable=labelText, anchor="center", bd=4, fg=COLOR_LABEL_DEFAULT,
+                 bg=BG_LABEL_DEFAULT, font=FONT_DEFAULT, relief=GROOVE)
 topLabel.grid(column=0, row=1, rowspan=2, columnspan=2, sticky='EW')
 
 # TODO change this to something more meaningful
@@ -232,9 +260,6 @@ labelText.set(TEXT_TOP_LABEL_DEFAULT)
 
 
 # ---------------- canvas ----------------------
-
-
-
 
 # add canvas that will hold the bar chart
 canvas = Canvas(app, bg=BG_CANVAS, height=CANVAS_HEIGHT, width=CANVAS_WIDTH)
@@ -245,10 +270,29 @@ drawBar()
 
 # ------------ bottom statistics -----------
 
-statsLabel = Label(app, anchor="w", bd=4, fg='red', bg='blue', height=STAT_HEIGHT)
-statsLabel.grid(column=0, columnspan=2, sticky='EW')
+statsText = StringVar()
+statsLabel = Label(app, anchor="center", bd=4, fg='red')
+statsLabel.grid(column=0, columnspan=2, sticky='NSEW')
+statsText.set("")
+
+# width of app in pixels
+# pixels ='123456789,123456789,123456789,123456789,123456789,123456789,123456789,123456789,123456789,123456789,123456789,'
+widthOfStatsCellInCharactars = 34
+
+# avg of all reqs label
+statsLeftText = StringVar()
+statsLeft = Label(statsLabel, textvariable=statsLeftText, font=FONT_STATS, anchor="center", bd=4, fg=COLOR_STATS_TEXT, width=widthOfStatsCellInCharactars)
+statsLeft.grid(column=0,row=0, sticky='W')
+statsLeftText.set(TEXT_LEFT_STATS_DEFAULT)
+
+# avg of last 10 reqs label
+statsRightText = StringVar()
+statsRight = Label(statsLabel, textvariable=statsRightText, font=FONT_STATS, anchor='center', bd=4, fg=COLOR_STATS_TEXT, width=widthOfStatsCellInCharactars)
+statsRight.grid(column=1, row=0)
+statsRightText.set(TEXT_RIGHT_STATS_DEFAULT)
 
 # ----------- end statistics ----------------
+
 # allow resizing of the window when long text is entered in the entry field
 app.grid_columnconfigure(0,weight=1)
 # allow only horizontal resizing (and not vertical)
@@ -263,64 +307,7 @@ entryField.focus_set()
 entryField.selection_range(0, END)
 
 
-# this method will be executed when the button is clicked
-
-# def OnButtonClick2(self):
-#     reqs = ["req1", "req2", "req3", "req4"]
-#     durs = [1, 0, 1, 0]
-#     d = {'r1':1,'r2':2,'r3':3,'r4':4}
-#     y_pos = np.arange(len(reqs))#/(-2),len(reqs)/2)
-#     # mask1 =
-#     # keys = np.asarray(d.keys())
-#     # keys = np.sort(keys)
-#     print str(y_pos)
-#     # plt.bar(range(len(d)), d.values(), align='center')
-#     # plt.xticks(range(len(d)), keys)
-#
-#     plt.bar(y_pos, durs, align='center', alpha=0.2)
-#     plt.xticks(y_pos, reqs)
-#
-#     plt.ylabel('is busy?')
-#     plt.title('workload')
-#
-#     plt.show()
-#
-#
-# # app = Tk(None)
-# # TODO change this to something more meaningful
-
 mainloop()
 
-
-def showBar():
-    requests = ["req1", "req2", "req3", "req4"]# + ["req1", "req2", "req3", "req4"]
-    lowerVal, upperVal = 1, 2
-    durations = [lowerVal,upperVal,lowerVal,upperVal]# + [s,b,s,b]
-    locationsOnXAxis = np.arange(len(requests))
-    yValStrings = ['','not busy','busy']
-    xLabel = 'recent requests'.upper()
-    yLabel = 'is busy?'.upper()
-    title = 'workload'.upper()
-
-    plt.bar(locationsOnXAxis, durations, align='center', alpha=0.5,width=0.4)
-    plt.xticks(locationsOnXAxis, requests)
-    plt.yticks(np.arange(len(yValStrings)), yValStrings)
-    plt.ylim(0,3)
-
-    plt.xlabel(xLabel)
-    # plt.ylabel(yLabel)
-    plt.title(title)
-
-
-    # x = np.arange(1, 100)
-    # y = np.sin(np.arange(1, 100))
-    # x = [1,2,3,4]
-    # y = durations
-    # colors = np.array([(1, 0, 0)] * len(y))
-    # colors[y >= 2] = (0, 0, 1)
-    # plt.bar(x, y, color=colors)
-    plt.show()
-
-# showBar()
 
 
