@@ -6,7 +6,8 @@ from Tkinter import *
 import matplotlib.pyplot as plt
 from sklearn.externals import joblib
 import json
-
+from tkFileDialog import askopenfilename
+from tkFileDialog import askopenfile
 plt.rcdefaults()
 import numpy as np
 
@@ -34,6 +35,7 @@ BG_CANVAS = 'black'
 BG_BUTTON_DEFAULT = 'brown3'
 
 
+
 # text colors
 COLOR_LABEL_DEFAULT = 'brown'
 COLOR_BUTTON_TEXT = 'white'
@@ -53,12 +55,13 @@ MAX_NUM_OF_BARS = 10
 FLOAT_PERCISION = 4
 
 # text fields
-TEXT_BUTTON = u"Evaluate request"
+TEXT_BUTTON = u"Evaluate text request"
+TEXT_BUTTON_FILE = u"Evaluate requests file"
 TEXT_ENTRY_DEFAULT = u"Enter request here..."
 TEXT_TOP_LABEL_DEFAULT = 'Waiting for a request...'
-TEXT_RED_REQ = 'BUSY!!  :-('
-TEXT_ORANGE_REQ = 'MEDIOCRELY LOADED  :-|'
-TEXT_GREEN_REQ = 'ALL iS GOOD  :-)'
+TEXT_RED_REQ = 'Will cause a High workload'
+TEXT_ORANGE_REQ = 'Will cause a Moderate workload'
+TEXT_GREEN_REQ = 'Will NOT cause an overload'
 TEXT_LEFT_STATS_DEFAULT = 'Avg of all requests will be here'
 TEXT_RIGHT_STATS_DEFAULT = 'Avg of last ' + str(MAX_NUM_OF_BARS) + ' requests will be here'
 TEXT_LAST10_REQS = 'Avg of last 10 requests : '
@@ -68,9 +71,9 @@ TEXT_ALL_REQS = 'Avg of all requests is '
 # canvas sizes
 
 # highest y = max_data_value * y_stretch
-y_stretch = 60
+y_stretch = 40
 # gap between lower canvas edge and x axis
-y_gap = 100
+y_gap = 130
 # distance between bars
 x_stretch = 40
 # width of a bar
@@ -79,19 +82,16 @@ CANVAS_WIDTH = WINDOW_WIDTH
 # gap between left canvas edge and y axis
 x_gap = CANVAS_WIDTH / 2
 # height of the stats bar
-stats_height_gap = 30
+stats_height_gap = 75
 CANVAS_HEIGHT = WINDOW_HEIGHT - y_gap - stats_height_gap
 # location of the reqs names
 BAR_NAME_LOCATION = CANVAS_HEIGHT - 70
 
+FILE=None
 
 def calculateX_GAP():
     total_width_of_bars = len(currDurations) * x_width + (len(currDurations) - 1) * x_stretch
     return (CANVAS_WIDTH - total_width_of_bars) / 2
-
-
-def OnButtonClick():
-    OnPressEnter(None)
 
 
 def drawBar():
@@ -114,7 +114,7 @@ def drawBar():
             canvas.create_rectangle(x0, y0, x1, y1, fill=BG_LABEL_GREEN)
 
         # the text to be displayed above/beneath each bar
-        textStr = 'req' + str(1 + x + max(len(allDurations) - 10, 0))
+        textStr = 'req\n' + str(1 + x + max(len(allDurations) - 10, 0))
 
         # put the y value above each bar.
         # if we want to print the name of the request at the top of the bar then the second argument should be y0
@@ -135,7 +135,7 @@ def updateTopLabel(val):
         reqName = ''
 
     topLabel = Label(app, textvariable=labelText, anchor="center", bd=4, fg=fontColor, bg=bgColor, font=FONT_DEFAULT, relief=GROOVE)
-    topLabel.grid(column=0, row=1, rowspan=2, columnspan=2, sticky='EW')
+    topLabel.grid(column=0, row=3, rowspan=2, columnspan=2, sticky='EW')
     labelText.set('Request ' + reqName + 'is ' + message)
 
 
@@ -155,11 +155,11 @@ def getClassifierMiddle(type):
 # selectedFeatures = feature_selection.selectedFeatures
 # allFeatures = feature_selection.allFeatures
 
-selectedFeatures=['BrowserVer','OsVer','Continent','OpName','Host']
-#selectedFeatures=['TimeOfDay','BrowserVer','OsVer','Continent','OpName','Host']
+#selectedFeatures=['BrowserVer','OsVer','Continent','OpName','Host']
+selectedFeatures=['TimeOfDay','BrowserVer','OsVer','Continent','OpName','Host']
 
-allFeatures = ['TimeStamp','Browser','BrowserVer','Os','OsVer','RoleInst','Continent','Country','Province','City','OpName','Opid','Pid','Sid','IsFirst','Aid','Name','Success','Response','UrlBase','Host','ReqDuration']
-#allFeatures = ['TimeStamp','Browser','BrowserVer','Os','OsVer','RoleInst','Continent','Country','Province','City','OpName','Opid','Pid','Sid','IsFirst','Aid','Name','Success','Response','UrlBase','Host','ReqDuration','TimeOfDay']
+#allFeatures = ['TimeStamp','Browser','BrowserVer','Os','OsVer','RoleInst','Continent','Country','Province','City','OpName','Opid','Pid','Sid','IsFirst','Aid','Name','Success','Response','UrlBase','Host','ReqDuration']
+allFeatures = ['TimeStamp','Browser','BrowserVer','Os','OsVer','RoleInst','Continent','Country','Province','City','OpName','Opid','Pid','Sid','IsFirst','Aid','Name','Success','Response','UrlBase','Host','ReqDuration','TimeOfDay']
 
 # 2015-10-01 06:56:20.746844800,Internet Explorer,Internet Explorer 9.0,Windows,Windows 7,InsightsPortal_IN_2,North America,United States,Washington,Redmond,GET insightsextension/Index,10376790725597904948,,bd1c032c-c539-4c06-84ec-a321403c5645,False,emea-au-syd-edge,GET insightsextension/Index,True,200,/insightsextension,stamp2.app.insightsportal.visualstudio.com,4.6762
 def getSelectedFeatures(vector):
@@ -186,6 +186,46 @@ def getSelectedFeatures(vector):
         res.append(vector[mapOfSelectedFeatures[selectedFeatures[i]]])
 
     return res
+
+def predictRequestLine(val):
+    try:
+        requestPredictionVal = getPredictionForRequest(val)
+        if(requestPredictionVal >= 0):
+            # add request to list of all reqs
+            allDurations.append(normalizePredictionVal(requestPredictionVal))
+
+            # remove the first element and add this one to the list of the last 10 reqs
+            currDurations.append(requestPredictionVal)
+            if(len(currDurations) > MAX_NUM_OF_BARS):
+                currDurations.pop(0)
+
+            labelText.set("")
+
+            # auto select the text field
+            entryField.focus_set()
+            entryField.selection_range(0, END)
+
+            # redraw canvas
+            canvas.delete('all')
+            drawBar()
+
+            updateTopLabel(requestPredictionVal)
+            updateStatsLabel()
+        else:
+            print 'the prediction value(%d) is negative' % requestPredictionVal
+    except:
+        labelText.set('\'' + val + '\'' + " is not a valid request. please try again")
+
+        # auto select the text field
+        entryField.focus_set()
+        entryField.selection_range(0, END)
+        updateTopLabel(-1)
+
+# load all data from 'all_features.json' to 'data'
+def loadJsonWithAllFeatures():
+    with open(modelDir+'all_features.json', 'r') as f:
+        data = json.load(f)
+    return data
 
 
 # this func checks a request that a user entered and if it's a legal request returns it's value, otherwise returns -1
@@ -243,51 +283,35 @@ def normalizePredictionVal(bigPrediction):
 
     return smallPrediction
 
+def OnPressEnterFile(Self):
+    global FILE
+    try:
+        newLine=FILE.readline()
+        predictRequestLine(newLine)
+    except:
+        labelText.set("not a valid request file or EOF. please try another file")
 
+def OnButtonClickLine():
+    global FILE
+    OnPressEnterFile(None)
+
+def OnButtonClickFile():
+    global FILE
+    global buttonLine
+    if FILE!=None:
+        FILE.close()
+    FILE=askopenfile()
+    FILE.readline()
+    buttonLine=Button(master=app, width=17, text='Next request', command=OnButtonClickLine, font=FONT_BUTTON,
+                fg=COLOR_BUTTON_TEXT, bg='purple', bd=8)
+    buttonLine.grid(column=1, row=2)
 
 def OnPressEnter(self):
     # runReqsFromFile()
-    try:
-        val = entryVariable.get()
-        requestPredictionVal = getPredictionForRequest(val)
-        if(requestPredictionVal >= 0):
-            # add request to list of all reqs
-            allDurations.append(normalizePredictionVal(requestPredictionVal))
+    predictRequestLine(entryVariable.get())
 
-            # remove the first element and add this one to the list of the last 10 reqs
-            currDurations.append(requestPredictionVal)
-            if(len(currDurations) > MAX_NUM_OF_BARS):
-                currDurations.pop(0)
-
-            labelText.set("")
-
-            # auto select the text field
-            entryField.focus_set()
-            entryField.selection_range(0, END)
-
-            # redraw canvas
-            canvas.delete('all')
-            drawBar()
-
-            updateTopLabel(requestPredictionVal)
-            updateStatsLabel()
-        else:
-            print 'the prediction value(%d) is negative' % requestPredictionVal
-    except:
-        labelText.set('\'' + val + '\'' + " is not a valid request. please try again")
-
-        # auto select the text field
-        entryField.focus_set()
-        entryField.selection_range(0, END)
-        updateTopLabel(-1)
-
-
-# load all data from 'all_features.json' to 'data'
-def loadJsonWithAllFeatures():
-    with open(modelDir+'all_features.json', 'r') as f:
-        data = json.load(f)
-    return data
-
+def OnButtonClick():
+    OnPressEnter(None)
 
 # map features to their indices in the request vector
 def getMapOfSelectedFeatures():
@@ -357,9 +381,17 @@ entryVariable.set(TEXT_ENTRY_DEFAULT)
 entryField.bind("<Return>", OnPressEnter)
 
 # add button
-button = Button(master=app, text=TEXT_BUTTON, command=OnButtonClick, font=FONT_BUTTON,
+button = Button(master=app, width=17, text=TEXT_BUTTON, command=OnButtonClick, font=FONT_BUTTON,
                 fg=COLOR_BUTTON_TEXT, bg=BG_BUTTON_DEFAULT, bd=8)
 button.grid(column=1, row=0)
+
+buttonFile = Button(master=app, width=17, text=TEXT_BUTTON_FILE,command=OnButtonClickFile, font=FONT_BUTTON,
+                fg=COLOR_BUTTON_TEXT, bg='blue', bd=8)
+buttonFile.grid(column=1, row=1)
+
+buttonLine = Button(master=app, width=17, text='No file entered', font=FONT_BUTTON,
+                fg=COLOR_BUTTON_TEXT, bg='gray', bd=8)
+buttonLine.grid(column=1, row=2)
 
 # add text label
 labelText = StringVar()
@@ -367,14 +399,14 @@ labelBGColor = StringVar()
 labelBGColor.set(BG_LABEL_DEFAULT)
 topLabel = Label(app, textvariable=labelText, anchor="center", bd=4, fg=COLOR_LABEL_DEFAULT,
                  bg=BG_LABEL_DEFAULT, font=FONT_DEFAULT, relief=GROOVE)
-topLabel.grid(column=0, row=1, rowspan=2, columnspan=2, sticky='EW')
+topLabel.grid(column=0, row=3, rowspan=2, columnspan=2, sticky='EW')
 
 labelText.set(TEXT_TOP_LABEL_DEFAULT)
 
 
 # add canvas that will hold the bar chart
 canvas = Canvas(app, bg=BG_CANVAS, height=CANVAS_HEIGHT, width=CANVAS_WIDTH)
-canvas.grid(column=0, columnspan=2, sticky='NSEW')
+canvas.grid(column=0, columnspan=3, sticky='NSEW')
 
 # draw bar
 drawBar()
@@ -382,7 +414,7 @@ drawBar()
 # add bottom statistics
 statsText = StringVar()
 statsLabel = Label(app, anchor="center", bd=4, fg='red')
-statsLabel.grid(column=0, columnspan=2, sticky='NSEW')
+statsLabel.grid(column=0, columnspan=3, sticky='NSEW')
 statsText.set("")
 
 # width of app in pixels
@@ -393,14 +425,14 @@ widthOfStatsCellInCharactars = 34
 statsLeftText = StringVar()
 statsLeft = Label(statsLabel, textvariable=statsLeftText, font=FONT_STATS, anchor="center", bd=4,
                   fg=COLOR_STATS_TEXT, width=widthOfStatsCellInCharactars)
-statsLeft.grid(column=0,row=0, sticky='W')
+statsLeft.grid(column=0,row=4, sticky='W')
 statsLeftText.set(TEXT_LEFT_STATS_DEFAULT)
 
 # add avg of last 10 requests label
 statsRightText = StringVar()
 statsRight = Label(statsLabel, textvariable=statsRightText, font=FONT_STATS, anchor='center', bd=4,
                    fg=COLOR_STATS_TEXT, width=widthOfStatsCellInCharactars)
-statsRight.grid(column=1, row=0)
+statsRight.grid(column=1, row=4)
 statsRightText.set(TEXT_RIGHT_STATS_DEFAULT)
 
 
