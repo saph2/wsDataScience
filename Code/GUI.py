@@ -55,13 +55,13 @@ MAX_NUM_OF_BARS = 10
 FLOAT_PERCISION = 4
 
 # text fields
-TEXT_BUTTON = u"Evaluate text request"
-TEXT_BUTTON_FILE = u"Evaluate requests file"
+TEXT_BUTTON = u"Evaluate Text request"
+TEXT_BUTTON_FILE = u"Load requests file"
 TEXT_ENTRY_DEFAULT = u"Enter request here..."
 TEXT_TOP_LABEL_DEFAULT = 'Waiting for a request...'
-TEXT_RED_REQ = 'Will cause a High workload'
-TEXT_ORANGE_REQ = 'Will cause a Moderate workload'
-TEXT_GREEN_REQ = 'Will NOT cause an overload'
+TEXT_RED_REQ = 'will cause a High workload'
+TEXT_ORANGE_REQ = 'will cause a Moderate workload'
+TEXT_GREEN_REQ = 'will NOT cause an overload'
 TEXT_LEFT_STATS_DEFAULT = 'Avg of all requests will be here'
 TEXT_RIGHT_STATS_DEFAULT = 'Avg of last ' + str(MAX_NUM_OF_BARS) + ' requests will be here'
 TEXT_LAST10_REQS = 'Avg of last 10 requests : '
@@ -136,7 +136,7 @@ def updateTopLabel(val):
 
     topLabel = Label(app, textvariable=labelText, anchor="center", bd=4, fg=fontColor, bg=bgColor, font=FONT_DEFAULT, relief=GROOVE)
     topLabel.grid(column=0, row=3, rowspan=2, columnspan=2, sticky='EW')
-    labelText.set('Request ' + reqName + 'is ' + message)
+    labelText.set('Request ' + reqName + ' ' + message)
 
 
 # get the current middle part of the path to the classifier
@@ -155,8 +155,8 @@ def getClassifierMiddle(type):
 # selectedFeatures = feature_selection.selectedFeatures
 # allFeatures = feature_selection.allFeatures
 
-#selectedFeatures=['BrowserVer','OsVer','Continent','OpName','Host']
-selectedFeatures=['TimeOfDay','BrowserVer','OsVer','Continent','OpName','Host']
+#selectedFeatures=['BrowserVer','OsVer','Continent','OpName',Country']
+selectedFeatures=['TimeOfDay','BrowserVer','OsVer','OpName','Continent','Country']
 
 #allFeatures = ['TimeStamp','Browser','BrowserVer','Os','OsVer','RoleInst','Continent','Country','Province','City','OpName','Opid','Pid','Sid','IsFirst','Aid','Name','Success','Response','UrlBase','Host','ReqDuration']
 allFeatures = ['TimeStamp','Browser','BrowserVer','Os','OsVer','RoleInst','Continent','Country','Province','City','OpName','Opid','Pid','Sid','IsFirst','Aid','Name','Success','Response','UrlBase','Host','ReqDuration','TimeOfDay']
@@ -302,13 +302,14 @@ def OnButtonClickFile():
         FILE.close()
     FILE=askopenfile()
     FILE.readline()
-    buttonLine=Button(master=app, width=17, text='Next request', command=OnButtonClickLine, font=FONT_BUTTON,
+    buttonLine=Button(master=app, width=17, text='Evaluate next request', command=OnButtonClickLine, font=FONT_BUTTON,
                 fg=COLOR_BUTTON_TEXT, bg='purple', bd=8)
     buttonLine.grid(column=1, row=2)
 
 def OnPressEnter(self):
     # runReqsFromFile()
-    predictRequestLine(entryVariable.get())
+    val=entryVariable.get()
+    predictRequestLine(val)
 
 def OnButtonClick():
     OnPressEnter(None)
@@ -389,8 +390,8 @@ buttonFile = Button(master=app, width=17, text=TEXT_BUTTON_FILE,command=OnButton
                 fg=COLOR_BUTTON_TEXT, bg='blue', bd=8)
 buttonFile.grid(column=1, row=1)
 
-buttonLine = Button(master=app, width=17, text='No file entered', font=FONT_BUTTON,
-                fg=COLOR_BUTTON_TEXT, bg='gray', bd=8)
+buttonLine = Button(master=app, width=18 ,height=2, text='No file entered', font=FONT_BUTTON,
+                fg='gray', bg='black', bd=0)
 buttonLine.grid(column=1, row=2)
 
 # add text label
