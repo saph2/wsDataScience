@@ -312,7 +312,7 @@ def runReqsFromFile():
     with open('requests.csv', 'r') as f:
         reqs = list(csv.reader(f))
     i = 0
-    cnt=[0,0,0,0,0,0,0,0]
+    cnt=[0,0,0,0,0,0,0,0,0,0]
     for row in reqs:
         try:
             v = int(getPredictionForRequest(arrayToStrWithCommas(row)))
