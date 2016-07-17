@@ -10,7 +10,7 @@ def run_code(header,featuresOfInterest,numberOfClasses):
 
     # move all request files from daily folders to one folder.
     # file name is according to the date
-    handel_files.move_data_to_one_folder(header + "DataSplitToDailyFolder", header + "RawData")
+    handel_files.move_data_to_one_folder(header + "../DailyData", header + "RawData")
     print "finished move_data_to_one_folder"
 
     # clean the data from 'comma'

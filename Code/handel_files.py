@@ -12,7 +12,10 @@ def create_directories(header):
     dir="../Model"
     if not os.path.exists(dir):
         os.makedirs(dir)
-    directories=["Classify","Train","Test","DataSplitToDailyFolder","DurationBar","RawData","Results","Selection","Features",
+    dir="../DailyData"
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+    directories=["Classify","Train","Test","DurationBar","RawData","Results","Selection","Features",
                  "Classify/LinearRegression","Classify/SVM","Classify/NaiveBayes",
                  "Results/Classifier","Results/Features",
                  "Selection/ClassifierSelection","Selection/FeatureSelection",
@@ -38,11 +41,11 @@ def move_data_to_one_folder(dataFolder, rawdatafolder):
         try:
             filePath = dataFolder + "/" + foldername + "/requests.csv"
             destPath = rawdatafolder + "/" + foldername + ".csv"
-            shutil.move(filePath, destPath)
+            shutil.copy(filePath, destPath)
         except:
-            print "requests file not exist in folder: " + foldername
+            pass
 
-# move random 90% of the data files to TrainData directory.
+# move random 80% of the data files to TrainData directory.
 # the rest to TestData.
 # this way they won't have an affect on feature selection.
 def split_files_to_test_and_train_dir(rawdataDirPath, trainDirPath, testDirPath):
