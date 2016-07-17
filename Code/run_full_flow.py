@@ -9,7 +9,7 @@ import features_charts
 
 header="../Data/"
 
-featuresOfInterest = ['TimeOfDay','BrowserVer','OsVer','OpName','Continent','Country']
+featuresOfInterest = ['BrowserVer', 'Continent', 'Country','OpName','OsVer','TimeOfDay']
 numberOfClasses=3
 
 # create directories
