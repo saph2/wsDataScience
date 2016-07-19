@@ -2,11 +2,10 @@
 # coding: utf-8
 
 
-# this program vectorize the rows of the requests files in the given folder
-# input: name of folder that contains requests files, and output folder for the vectors
-# uses: the files from the "Features" folder
-# output: writes vectors files to the Folders "TrainVectors" or "ValidationVectors" (chosen by input)
-
+# This script vectorizes the rows of the requests files in the given folder
+# Input: the requests files
+# Uses: the files from the "Data/Features" folder
+# Output: writes vectors files to the Folders "Data/Train/TrainVectors" or "Data/Test/TestVectors"
 
 
 import os
@@ -16,7 +15,7 @@ from collections import OrderedDict
 allFeaturesDict=OrderedDict()
 
 #update dict from the scaled Features file
-def updateDict (data, filename,featureDict):
+def updateDict (data,featureDict):
     data.reverse
     headline=data.pop(0)
     fieldIDPlace=-1
@@ -32,20 +31,20 @@ def updateDict (data, filename,featureDict):
         print ("indexs not found in request file in vectorize_data.py: updateDict")
         exit(0)
     for row in data:
-        featureDict[row[fieldNamePlace]] = row[fieldIDPlace] #update row "England" in CountryDict
+        featureDict[row[fieldNamePlace]] = row[fieldIDPlace]  # example: update row "England" in CountryDict
 
 # create a new vector from the given row
 def addToNewRow (row,newRow,featureDict,featurePlace):
-    currentField=row[featurePlace] #countryDict-> England
+    currentField=row[featurePlace]  # example: countryDict-> England
     if currentField in featureDict:
-        index=featureDict[currentField] #index = 3 (country[England]=3)
+        index=featureDict[currentField]  # example: index = 3 (country[England]=3)
     else:
         index=0
     newRow.append(index)
 
 # add all features to new line
 def addAllToNewRow(row, newRow, featuresPlaces):
-    for feature in featuresPlaces.keys(): #add each feature id to the new vector
+    for feature in featuresPlaces.keys():  # add each feature id to the new vector
         addToNewRow(row, newRow, allFeaturesDict[feature], featuresPlaces[feature])
 
 def vectorizeFile(data, newdata, isLabeled):
@@ -72,13 +71,13 @@ def vectorizeFile(data, newdata, isLabeled):
         print ("indexs not found in request file in vectoriza_data.py: vectorizeFile")
         exit(0)
 
-    #now that we have our indexes and feaures we write a new vector to each row
+    # now that we have our indexes and feaures we write a new vector to each row
     for row in data:
         newRow=[]
         addAllToNewRow(row, newRow, featuresPlaces)
         if isLabeled:
-            newRow.append(row[labelPlace]) #add label to vector
-        newdata.append(newRow) #add new vector to newdata (file vectors)
+            newRow.append(row[labelPlace]) # add label to vector
+        newdata.append(newRow) # add new vector to newdata (file vectors)
 
 
 # write output to file (vectors)
@@ -93,38 +92,38 @@ def writeVectorsFile (filepath,newdata,isLabeled):
             f2.write('\n')
         f2.close()
 
-#vectorizes all files in the Dir: requests files
+# vectorizes all files in the Dir: requests files
 def vectorizeFilesInDir(dataDirPath,vectorsDirPath,isLabeled):
     for filename in os.listdir(dataDirPath):
         if "empty" not in filename:
-            filepath=dataDirPath+"/"+filename #oldpath
-            filename=filename.split(".csv")[0]+"_vectors.csv" #newpath
+            filepath=dataDirPath+"/"+filename # oldpath
+            filename=filename.split(".csv")[0]+"_vectors.csv" # newpath
             newpath=vectorsDirPath+"/"+filename
             with open(filepath) as f:
                 data = list(csv.reader(f))
                 f.close()
             newdata=list()
-             #add headers to newdata
+             # add headers to newdata
             headers=[]
             for key in allFeaturesDict.keys():
                 headers.append(key)
             if isLabeled:
                 headers.append("Label")
             newdata.append(headers)
-            vectorizeFile(data,newdata,isLabeled) #vectorize the request file
+            vectorizeFile(data,newdata,isLabeled)  # vectorize the request file
             writeVectorsFile(newpath,newdata,isLabeled)
 
 
-#read all "Features" to dictionary
+#read all Features to dictionary
 def readFeatures (featuresDirPath):
     for filename in os.listdir(featuresDirPath):
         if "empty" not in filename and "features" in filename:
             filepath=featuresDirPath+"/"+filename
             filename=filename.split("_")[0]
-            allFeaturesDict[filename]=OrderedDict() #init: allFeaturesDict[Country]={}
+            allFeaturesDict[filename]=OrderedDict()  # init example: allFeaturesDict[Country]={}
             with open(filepath) as f:
                 data = list(csv.reader(f))
-                updateDict(data,filename,allFeaturesDict[filename])
+                updateDict(data,allFeaturesDict[filename])
                 f.close
 
 

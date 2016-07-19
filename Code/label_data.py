@@ -1,13 +1,10 @@
 # coding: utf-8
 
 
-# this program labels our data
-# the input are requests files found in the Dir: "Data/DataToLabel"
-# and it uses the bar file from the path: ""Data/DataForBar/barFile.csv"
-# the program goes over each request file and label the row according to the results from the func: "isBusy"
-# the function uses the min duration per host+url info found in the barFile in order to choose a label
-# output: each file is saved as it was, with the exception of an additional label column, to the Dir: "Data/labeledData"
-
+# This program requests files
+# It uses the file from the path: "Data/DurationBar/barFile.csv"
+# The program goes over each request file and label the row according to the results from the func: "isBusy"
+# Output: each file is saved as it was, with the exception of an additional 'Label' column.
 
 
 import numpy as np
@@ -19,7 +16,7 @@ allfiles = list()
 barDict = OrderedDict()
 
 
-# read dictionary File into dictionary DataStruct
+# read dictionary file into dictionary
 def readBarFile(barDirPath):
     barPath = barDirPath + "/barFile.csv"
     with open(barPath) as f:
@@ -29,33 +26,44 @@ def readBarFile(barDirPath):
     headline = dictdata.pop(0)
     hostplace = -1
     urlplace = -1
-    mindurplace = -1
-    maxdurplace = -1
+    avgdurplace = -1
+    conplace=-1
     i = 0
     for title in headline:
         if title == 'Host':
             hostplace = i
         if title == 'URL':
             urlplace = i
-        if title == 'sumDuration':
+        if title == 'avgDuration':
+            avgdurplace = i
+        if title == 'minDuration':
             mindurplace = i
-        if title == 'countDuration':
+        if title == 'maxDuration':
             maxdurplace = i
+        if title == 'Continent':
+            conplace = i
         i += 1
-    if hostplace < 0 or urlplace < 0 or mindurplace < 0 or maxdurplace < 0:
+    if hostplace < 0 or urlplace < 0 or avgdurplace < 0 or mindurplace < 0 or maxdurplace < 0 or conplace < 0:
         print ("indexs not found in request file in label_data.py: readBarFile")
         exit(0)
     for line in dictdata:
         try:
             hostname = line[hostplace]
             urlname = line[urlplace]
-            dur = [float(line[mindurplace]), float(line[maxdurplace])]
+            coname = line[conplace]
+            avgdur = float(line[avgdurplace])
+            mindur = float(line[mindurplace])
+            maxdur = float(line[maxdurplace])
         except:
             print ("index out of bounds in label_data.py: readBarFile")
             exit(0)
         if hostname not in barDict.keys():  # update host
             barDict[hostname] = OrderedDict()
-        barDict[hostname].update({urlname: dur})  # update new url
+        codict={coname:[avgdur,mindur,maxdur]}
+        if urlname not in barDict[hostname]:
+            barDict[hostname].update({urlname: codict})  # update new url
+        else:
+            (barDict[hostname])[urlname].update(codict) # update new continent
 
 
 # read the file intended to be labeled into DataStructure
@@ -73,11 +81,11 @@ def readFileToList(filepath, newpath):
     return data
 
 
-# function for deciding busy row or not
-def isBusy(lineDur, dur, numberOfClasses):
-    avgUrl=float(dur[0])/dur[1]
-    for i in range(0, numberOfClasses - 1):
-        if lineDur < avgUrl + (i / avgUrl):
+# function for deciding the busyness label for the raw
+def isBusy(lineDur,avgdur,mindur,maxdur,numberOfClasses):
+    diff=(float(maxdur-avgdur)/numberOfClasses-1)
+    for i in range(0, numberOfClasses-1):
+      if lineDur < avgdur + (i*diff):
             return i
     return (numberOfClasses - 1)  # maxValue
 
@@ -91,7 +99,7 @@ def labeledDataToFile(filepath, data):
             f2.write('\n')
         f2.close()
 
-
+# label the data from the request file
 def labelTheData(data, numberOfClasses):
     data.reverse
     headline = data.pop(0)
@@ -99,6 +107,7 @@ def labelTheData(data, numberOfClasses):
     urlplace = -1
     durplace = -1
     labelplace = -1
+    conplace=-1
     i = 0
     # find indexes
     for title in headline:
@@ -110,25 +119,28 @@ def labelTheData(data, numberOfClasses):
             durplace = i
         if title == 'Label':
             labelplace = i
+        if title == "Continent":
+            conplace=i
         i += 1
     # label the rows
-    if hostplace < 0 or urlplace < 0 or durplace < 0 or labelplace < 0:
+    if hostplace < 0 or urlplace < 0 or durplace < 0 or labelplace < 0 or conplace < 0:
         print ("indexs not found in request file in label_data.py: labelTheData")
         exit(0)
     for line in data:
         try:
             lineHost = line[hostplace]
             lineUrl = line[urlplace]
+            lineCon = line[conplace]
             lineDur = float(line[durplace])
             try:
-                durURL = (barDict[lineHost])[lineUrl]
+                avgDur = float(barDict[lineHost][lineUrl][lineCon][0])
+                minDur = float(barDict[lineHost][lineUrl][lineCon][1])
+                maxDur = float(barDict[lineHost][lineUrl][lineCon][2])
                 # check if busy row
-                label = isBusy(lineDur, durURL, numberOfClasses)  # label row
+                label = isBusy(lineDur,avgDur,minDur,maxDur,numberOfClasses)  # label row
             except:
                 label = 0
-
             line[labelplace] = label  # label the row
-
         except:
             print ("index out of bounds in label_data.py: labelTheData")
             exit(0)
@@ -154,8 +166,3 @@ def labelAllfiles(dataDir, labelDir, barDir, numberOfClasses):
 
             # save data to file
             labeledDataToFile(newpath, data)
-
-
-
-
-

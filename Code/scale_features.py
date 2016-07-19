@@ -1,20 +1,19 @@
 # coding: utf-8
 
 
-# this program reads all labeled files from "LabeledData" Dir
-# the program orders fields in selected features by the prob of having a "busy" label (out of the total count for the field)
-# for exmp: fot the feature "Country" we have a list of fields: "England","Isreal" ext...
-# ordered as such ["England": prob(busy_in_England)] and so on for all fields under "Country"
-# the output are files for each feature, containing all the fields and prob as written above
-# the fields in each file are ordered in ascending order of prob(busy_for_field)
-# the files are saved in Dir: "Data/Features"
+# This program gives a numerical representation to the values of the selected features
+# The input are the labeled train set.
+# It calculates the probability for each feature's value to appear in a busy request
+# The values are then ordered by their probabilities and numbered accordingly
+# The output is a file for each feature with the numerical representation for each of its values
+# (for example: 'England'->17)
+# Results are saved to: "Data/Features" and "Model/all_features.json"
 
 
-
+import json
 import os
 import csv
 from collections import OrderedDict
-import vectorize_data
 
 # for the given feature - update its dictionary from the given row
 # dictionary build for exmp: country_name: [count #label '0', count #label '1']
@@ -33,8 +32,6 @@ def updateFeaturesInAllDicts(row, featuresPlaces, allFeaturesDicts, labelPlace,n
     for feature in featuresPlaces.keys():
         updateFeature(row, featuresPlaces[feature], allFeaturesDicts[feature], labelPlace,numberOfClasses)  #send: (row, countyIndex, countryDict, labelIndex)
 
-
-#<type 'list'>: ['TimeStamp', 'Browser', 'BrowserVer', 'Os', 'OsVer', 'RoleInst', 'Continent', 'Country', 'Province', 'City', 'OpName', 'Opid', 'Pid', 'Sid', 'IsFirst', 'Aid', 'Name', 'Success', 'Response', 'UrlBase', 'Host', 'ReqDuration', 'Label', '']
 
 # update all the dictionaries with the info from the current file
 def updateAllDict(data, allFeaturesDicts, featuresOfInterest,numberOfClasses):
@@ -72,7 +69,7 @@ def updateAllDict(data, allFeaturesDicts, featuresOfInterest,numberOfClasses):
 
 def getBusyPerDict(dictName,numberOfClasses):
     tempDict = OrderedDict()
-    for key in dictName:# to change!!
+    for key in dictName:
         total=dictName[key][0]
         onlyBusy=0
         for i in range (1,numberOfClasses):
@@ -83,7 +80,7 @@ def getBusyPerDict(dictName,numberOfClasses):
     return tempDict
 
 
-
+allDictsForJson = {}
 # save dictionary to file
 def dictToFile(dictName, fileName, featuresDirPath,numberOfClasses):
     # call for probability analysis function
@@ -92,11 +89,14 @@ def dictToFile(dictName, fileName, featuresDirPath,numberOfClasses):
     # order keys by busy values
     dictName = OrderedDict(sorted(dictName.items(), key=lambda t: t[1]))
 
+    dictOfKeys = {}
+
     filepath = featuresDirPath + "/" + fileName + "_features.csv"
     with open(filepath, 'w') as f2:
         fieldID = 1  # number each field
         f2.write('fieldName,busyFromTotal,fieldID\n')
         for key in dictName:
+            dictOfKeys[key] = fieldID
             f2.write('%s,' % key)
             f2.write('%f,' % dictName[key])
             f2.write('%d,' % fieldID)
@@ -104,12 +104,24 @@ def dictToFile(dictName, fileName, featuresDirPath,numberOfClasses):
             fieldID += 1
         f2.close()
 
+    allDictsForJson[fileName] = convertDictToUTF8(dictOfKeys)
+
 
 # write all updated dictionaries to files
 def writeDictsToFiles(featuresOfInterest, allFeaturesDicts, featuresDirPath,numberOfClasses):
     for feature in featuresOfInterest:
         dictToFile(allFeaturesDicts[feature], feature, featuresDirPath,numberOfClasses)
 
+
+def convertDictToUTF8(oldDict):
+    newDict = {}
+    for key, val in oldDict.iteritems():
+        try:
+            k = key.encode('utf-8')
+            newDict[k] = val
+        except:
+            pass
+    return newDict
 
 
 # create features files from the labeled data
@@ -130,6 +142,15 @@ def buildFeaturesFiles(dataDirPath, featuresDirPath, featuresOfInterest,numberOf
     #write the dicts to their files
     writeDictsToFiles(featuresOfInterest, allFeaturesDicts, featuresDirPath,numberOfClasses)
 
+    # write all dicts to one json file.
+    # keys are the featuresOfInterest
+    # values are the dicts holding (key = one feature, value = num of 0's and num of 1's)
+    with open('../Model/all_features.json', 'w') as f2:
+        # jsonStr = json.dumps(allDictsForJson, indent=4, ensure_ascii=False)
+        # f2.write(jsonStr)
+        # json.dump(allDictsForJson, f2, indent=4)
+        json.dump(allDictsForJson, f2, sort_keys=True, indent=4)
+        print 'finished writing JSON file'
 
 
 

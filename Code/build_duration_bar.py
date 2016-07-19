@@ -2,12 +2,9 @@
 # coding: utf-8
 
 
-# this program builds the bar we will use for labeling our data
-# the input are requests files found in the Dir: "Data/DataForBar"
-# the program finds the minimum request's duration per Host and Url and saves it in a dictionary
-# for exmp: host_name:url_base:minimum_duration
-# output: the dictionary is saved to a file called "barFile" in the same Dir
-
+# This program builds the file we will use for labeling our data
+# The program finds the average request's duration per Host and Url and Continent
+# Output saved to: "Data/DurationBar/barFile.csv"
 
 
 import numpy as np
@@ -26,7 +23,7 @@ def readFileToList(filepath):
     return data
 
 
-#add/update to dictionary from a single request file: (Host->URL->MinDuration)
+#add/update to dictionary from a single request file: (Host->URL->Continent->AvgDuration)
 def insertToDict (data,hostplace,urlplace,durplace,conplace):
     for line in data:
         try:
@@ -62,7 +59,7 @@ def createDictFromAllFiles (allfiles):
         #find the place of the host, url and reqDuration in the data
         data.reverse
         headline=data.pop(0)
-        hostplac=-1
+        hostplace=-1
         urlplace=-1
         durplace=-1
         conplace=-1
@@ -102,7 +99,7 @@ def saveDictToFile(dirpath):
 
 
 
-#create a dictionary from files in the form of: (Host->URL->MinDuration)
+#create a dictionary from files in the form of: (Host->URL->Continent->AvgDuration)
 def buildBar(dirpath, barFolder):
     for filename in os.listdir(dirpath): #add all requests files in the diractory
         if "empty" not in filename and "bar" not in filename:

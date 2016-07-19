@@ -1,7 +1,12 @@
 #!/usr/bin/python
 # -*- coding: iso-8859-1 -*-
+
+# The final app script
+# Necessary files are in the "Model" directory: classifier.pkl and all_features.json
+# Input: from user, a request in the format given in the course site
+# Output: the prediction for the request showed in bars
+
 import csv
-import random
 from Tkinter import *
 import matplotlib.pyplot as plt
 from sklearn.externals import joblib
@@ -19,7 +24,7 @@ allDurations = []
 # ------------- constants -------------
 
 # classifier consts
-modelDir = '../Model/'
+pathToClassifier = '../Model/'
 classifierSuffix = '_model.pkl'
 classifierType = 'svm'
 
@@ -56,13 +61,13 @@ FLOAT_PERCISION = 4
 TEXT_BUTTON = u"Evaluate request"
 TEXT_ENTRY_DEFAULT = u"Enter request here..."
 TEXT_TOP_LABEL_DEFAULT = 'Waiting for a request...'
-TEXT_RED_REQ = 'BUSY!!  :-('
-TEXT_ORANGE_REQ = 'MEDIOCRELY LOADED  :-|'
-TEXT_GREEN_REQ = 'ALL iS GOOD  :-)'
+TEXT_RED_REQ = 'will cause a high workload'
+TEXT_ORANGE_REQ = 'will cause a moderate workload'
+TEXT_GREEN_REQ = 'will not cause an overload'
 TEXT_LEFT_STATS_DEFAULT = 'Avg of all requests will be here'
 TEXT_RIGHT_STATS_DEFAULT = 'Avg of last ' + str(MAX_NUM_OF_BARS) + ' requests will be here'
 TEXT_LAST10_REQS = 'Avg of last 10 requests : '
-TEXT_ALL_REQS = 'Avg of all requests is '
+TEXT_ALL_REQS = 'Avg of all requests : '
 
 
 # canvas sizes
@@ -79,7 +84,7 @@ CANVAS_WIDTH = WINDOW_WIDTH
 # gap between left canvas edge and y axis
 x_gap = CANVAS_WIDTH / 2
 # height of the stats bar
-stats_height_gap = 30
+stats_height_gap = 20
 CANVAS_HEIGHT = WINDOW_HEIGHT - y_gap - stats_height_gap
 # location of the reqs names
 BAR_NAME_LOCATION = CANVAS_HEIGHT - 70
@@ -136,32 +141,12 @@ def updateTopLabel(val):
 
     topLabel = Label(app, textvariable=labelText, anchor="center", bd=4, fg=fontColor, bg=bgColor, font=FONT_DEFAULT, relief=GROOVE)
     topLabel.grid(column=0, row=1, rowspan=2, columnspan=2, sticky='EW')
-    labelText.set('Request ' + reqName + 'is ' + message)
+    labelText.set('Request ' + reqName + message)
 
 
-# get the current middle part of the path to the classifier
-# type = svm/nb/lr
-def getClassifierMiddle(type):
-    classifierMiddle = ''
-    if(type.lower() == 'svm'):
-        classifierMiddle = 'SVM/svm'
-    elif type.lower() == 'nb':
-        classifierMiddle = 'NaiveBayes/naive_bayes'
-    elif type.lower() == 'lr':
-        classifierMiddle = 'LinearRegression/linearRegression'
-    return classifierMiddle
-
-
-# selectedFeatures = feature_selection.selectedFeatures
-# allFeatures = feature_selection.allFeatures
-
-selectedFeatures=['BrowserVer','OsVer','Continent','OpName','Host']
-#selectedFeatures=['TimeOfDay','BrowserVer','OsVer','Continent','OpName','Host']
-
+selectedFeatures = ['BrowserVer', 'Continent', 'Country','OpName','OsVer','TimeStamp']
 allFeatures = ['TimeStamp','Browser','BrowserVer','Os','OsVer','RoleInst','Continent','Country','Province','City','OpName','Opid','Pid','Sid','IsFirst','Aid','Name','Success','Response','UrlBase','Host','ReqDuration']
-#allFeatures = ['TimeStamp','Browser','BrowserVer','Os','OsVer','RoleInst','Continent','Country','Province','City','OpName','Opid','Pid','Sid','IsFirst','Aid','Name','Success','Response','UrlBase','Host','ReqDuration','TimeOfDay']
 
-# 2015-10-01 06:56:20.746844800,Internet Explorer,Internet Explorer 9.0,Windows,Windows 7,InsightsPortal_IN_2,North America,United States,Washington,Redmond,GET insightsextension/Index,10376790725597904948,,bd1c032c-c539-4c06-84ec-a321403c5645,False,emea-au-syd-edge,GET insightsextension/Index,True,200,/insightsextension,stamp2.app.insightsportal.visualstudio.com,4.6762
 def getSelectedFeatures(vector):
     vector = vector.split(',')
 
@@ -174,6 +159,12 @@ def getSelectedFeatures(vector):
         currValInVector = (vector[index]).lower()
 
         try:
+            if(index == 0):
+                timeofday = currValInVector
+                timeofday = timeofday.split(' ')[1]
+                timeofday = timeofday.split(':')[0] + ':' + timeofday.split(':')[1]
+                currValInVector = timeofday
+
             # new value from json dict (from all_features.json)
             valFromJsonData = data[featureName][currValInVector]
         except:
@@ -284,7 +275,7 @@ def OnPressEnter(self):
 
 # load all data from 'all_features.json' to 'data'
 def loadJsonWithAllFeatures():
-    with open(modelDir+'all_features.json', 'r') as f:
+    with open(pathToClassifier + 'all_features.json', 'r') as f:
         data = json.load(f)
     return data
 
@@ -344,8 +335,7 @@ app.minsize(WINDOW_WIDTH,WINDOW_HEIGHT)
 app.maxsize(WINDOW_WIDTH,WINDOW_HEIGHT)
 
 # load classifier
-##classifier = joblib.load(pathToClassifier + getClassifierMiddle(classifierType) + classifierSuffix)
-classifier = joblib.load(modelDir+classifierType+classifierSuffix)
+classifier = joblib.load(pathToClassifier + classifierType + classifierSuffix)
 
 # add text entry field
 entryVariable = StringVar()
@@ -419,6 +409,5 @@ entryField.selection_range(0, END)
 
 # run in loop
 mainloop()
-
 
 

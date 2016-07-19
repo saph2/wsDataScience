@@ -1,5 +1,7 @@
 # coding: utf-8
 
+# Actions needed for all three classifiers before training the classifier
+
 
 import numpy as np
 from sklearn import preprocessing
@@ -18,11 +20,8 @@ def read_vectors(vec_dir_path):
     filtered_data = np.asarray(filtered_data)[0]
     return filtered_data
 
-
+# prepare the vectors without pre-processing
 def scale_and_filter_vectors_with_negative(filtered_data):
-    # cut headline
-   # sz = filtered_data.size
-   # filtered_data = filtered_data[1:sz]
 
     # save labels
     lsz=len(filtered_data[0])-1
@@ -36,10 +35,8 @@ def scale_and_filter_vectors_with_negative(filtered_data):
 
     return scaled_filtered_data, labels
 
+# prepare the vectors with pre-processing
 def scale_and_filter_vectors_without_negative(filtered_data):
-    # cut headline
-  #  sz = filtered_data.size
-  #  filtered_data = filtered_data[1:sz]
 
     # save labels
     lsz=len(filtered_data[0])-1
