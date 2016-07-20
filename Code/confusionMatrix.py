@@ -1,3 +1,4 @@
+# coding: utf-8
 
 # Create the confusion matrix from the classifier results
 # Output saved to: "Data/Results/Classifier"

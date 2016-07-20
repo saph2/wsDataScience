@@ -1,6 +1,5 @@
 # coding: utf-8
 
-
 # This program gives a numerical representation to the values of the selected features
 # The input are the labeled train set.
 # It calculates the probability for each feature's value to appear in a busy request

@@ -1,3 +1,4 @@
+# coding: utf-8
 
 # The full classifying process from vectors to a trained classifier
 # Choose classifier: SVM, LR, NB

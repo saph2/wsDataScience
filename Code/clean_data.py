@@ -1,4 +1,3 @@
-
 # coding: utf-8
 
 # Cleans the raw data from undesired characters and adds the "TimeOfDay" feature

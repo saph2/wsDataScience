@@ -1,3 +1,4 @@
+# coding: utf-8
 
 # Feature selection script
 # Checks for feature subtraction and feature addition
