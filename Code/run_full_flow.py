@@ -14,7 +14,7 @@ import features_charts
 
 header="../Data/"
 
-delete_files_at_the_end=True  # if this flas is 'True', all files created will be deleted at the end of the run, 'Flase' will keep them
+delete_files_at_the_end=True  # if this flag is 'True': all files created will be deleted at the end of the run, 'Flase': will save them
 
 featuresOfInterest = ['TimeOfDay','BrowserVer','OsVer','OpName','Continent','Country']
 numberOfClasses=3
