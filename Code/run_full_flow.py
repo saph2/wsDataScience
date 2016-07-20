@@ -14,7 +14,9 @@ import features_charts
 
 header="../Data/"
 
-featuresOfInterest = ['BrowserVer', 'Continent', 'Country','OpName','OsVer','TimeOfDay']
+delete_files_at_the_end=True  # if this flas is 'True', all files created will be deleted at the end of the run, 'Flase' will keep them
+
+featuresOfInterest = ['TimeOfDay','BrowserVer','OsVer','OpName','Continent','Country']
 numberOfClasses=3
 
 # create directories
@@ -41,8 +43,9 @@ finally:
     print "\nfinished remove_files_to_rawdata"
 
     # remove all files from all directories at the end of the run
-    handel_files.remove_all_files_from_all_folders(header)
-    print "\nfinished removing all files from all directories"
+    if delete_files_at_the_end:
+        handel_files.remove_all_files_from_all_folders(header)
+        print "\nfinished removing all files from all directories"
 
 
 

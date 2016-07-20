@@ -103,8 +103,6 @@ def delete_files_from_dir(dirPath):
 # removes all files that were added during the run
 def remove_all_files_from_all_folders(header):
 
-    save_to_model_dir(header,"../Model")
-
     delete_files_from_dir(header+"Train/TrainLabeledData")
     delete_files_from_dir(header+"Train/TrainRawData")
     delete_files_from_dir(header+"Train/TrainVectors")
@@ -113,6 +111,7 @@ def remove_all_files_from_all_folders(header):
     delete_files_from_dir(header+"Test/TestRawData")
     delete_files_from_dir(header+"Test/TestVectors")
 
+    delete_files_from_dir(header+"DurationBar")
     delete_files_from_dir(header+"Features")
 
     delete_files_from_dir(header+"Selection/FeatureSelection/TrainNewVectors")
@@ -120,20 +119,9 @@ def remove_all_files_from_all_folders(header):
 
 
 # save the classifiers to the "Model" directory
-def save_to_model_dir(header,destDir):
-    svmname=header+"Classify/SVM/svm_model.pkl"
-    lgname=header+"Classify/LinearRegression/linearRegression_model.pkl"
-    nbname=header+"Classify/NaiveBayse/naive_bayes_model.pkl"
+def save_to_model_dir(destDir,fileName):
     try:
-        shutil.copy(svmname, destDir)
-    except:
-        pass
-    try:
-        shutil.copy(lgname, destDir)
-    except:
-        pass
-    try:
-        shutil.copy(nbname, destDir)
+        shutil.copy(fileName, destDir)
     except:
         pass
 

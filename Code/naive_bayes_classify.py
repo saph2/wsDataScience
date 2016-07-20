@@ -10,6 +10,7 @@ import random
 from sklearn.externals import joblib
 import common_classify
 import confusionMatrix
+import handel_files
 
 
 def build_classifier(train_samples, train_out):
@@ -45,7 +46,8 @@ def cross_val_model(scaled_filtered_data, labels, naive_bayes_model_dir_path, nu
         clf = build_classifier(train_samples, train_out)
 
         # dump classifier
-        joblib.dump(clf, naive_bayes_model_dir_path + "/" + 'naive_bayes_model.pkl', compress=9)
+        classPath=naive_bayes_model_dir_path + "/" + 'naive_bayes_model.pkl'
+        joblib.dump(clf, classPath, compress=9)
 
         # predict
         a = np.array(clf.predict(test_samples).astype(int))
@@ -66,6 +68,9 @@ def cross_val_model(scaled_filtered_data, labels, naive_bayes_model_dir_path, nu
         f2.write(" -- cross val prediction --\n")
         f2.write(resultsStr)
         f2.write("\n")
+
+    handel_files.save_to_model_dir("../Model",classPath)
+    print ("Classifier saved to 'Model'\n")
 
 
 # build the NB classifier

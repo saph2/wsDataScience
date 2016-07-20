@@ -10,6 +10,7 @@ import random
 from sklearn.externals import joblib
 import common_classify
 import confusionMatrix
+import handel_files
 
 
 def build_classifier(train_samples, train_out,svmModel):
@@ -46,7 +47,8 @@ def cross_val_model(scaled_filtered_data, labels, svmModel_dir_path, svmModel, n
         clf = build_classifier(train_samples, train_out,svmModel)
 
         # dump classifier
-        joblib.dump(clf, svmModel_dir_path+"/"+'svm_model.pkl', compress=9)
+        classPath=svmModel_dir_path+"/"+'svm_model.pkl'
+        joblib.dump(clf, classPath, compress=9)
 
         # predict
         a = np.array(clf.predict(test_samples).astype(int))
@@ -73,6 +75,9 @@ def cross_val_model(scaled_filtered_data, labels, svmModel_dir_path, svmModel, n
         f2.write(" -- cross val prediction --\n")
         f2.write(resultsStr)
         f2.write("\n")
+
+    handel_files.save_to_model_dir("../Model",classPath)
+    print ("Classifier saved to 'Model'\n")
 
     return succ
 

@@ -10,6 +10,7 @@ import random
 from sklearn.externals import joblib
 import common_classify
 import confusionMatrix
+import handel_files
 
 def build_classifier(train_X, train_Y):
     regr = linear_model.LinearRegression()
@@ -46,7 +47,8 @@ def cross_val_model(scaled_filtered_data, labels, regr_dir_path, numberOfClasses
         regr = build_classifier(train_X, train_Y)
 
         # dump classifier
-        joblib.dump(regr, regr_dir_path+"/"+'linearRegression_model.pkl', compress=9)
+        classPath=regr_dir_path+"/"+'linearRegression_model.pkl'
+        joblib.dump(regr, classPath, compress=9)
 
         resultsOther[0]+=regr.coef_
         resultsOther[1]+=np.mean(regr.predict(test_X) - test_Y) ** 2
@@ -85,7 +87,8 @@ def cross_val_model(scaled_filtered_data, labels, regr_dir_path, numberOfClasses
         f2.write(resultsStr)
         f2.write("\n")
 
-
+    handel_files.save_to_model_dir("../Model",classPath)
+    print ("Classifier saved to 'Model'\n")
 
 # build the LR classifier
 def build_train_model(vec_dir_path, regr_dir_path, numberOfClasses):
