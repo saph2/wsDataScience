@@ -84,7 +84,7 @@ CANVAS_WIDTH = WINDOW_WIDTH
 # gap between left canvas edge and y axis
 x_gap = CANVAS_WIDTH / 2
 # height of the stats bar
-stats_height_gap = 20
+stats_height_gap = 30
 CANVAS_HEIGHT = WINDOW_HEIGHT - y_gap - stats_height_gap
 # location of the reqs names
 BAR_NAME_LOCATION = CANVAS_HEIGHT - 70
